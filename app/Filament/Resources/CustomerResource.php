@@ -19,13 +19,27 @@ class CustomerResource extends Resource
     protected static ?string $model = Customer::class;
     protected static bool $isScopedToTenant = true;
 
-
     protected static ?string $navigationIcon = 'heroicon-m-user';
     protected static ?int $navigationSort = 2;
 
+    public static function getModelLabel(): string
+    {
+        return __('customer.navigation.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('customer.navigation.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('customer.navigation.label');
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return __('Users Management');
+        return __('customer.navigation.group');
     }
 
     public static function form(Form $form): Form

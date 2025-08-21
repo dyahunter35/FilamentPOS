@@ -24,9 +24,24 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 1;
     protected static bool $isScopedToTenant = false;
 
+    public static function getModelLabel(): string
+    {
+        return __('user.navigation.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('user.navigation.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('user.navigation.label');
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return __('Users Management');
+        return __('user.navigation.group');
     }
 
     public static function form(Form $form): Form

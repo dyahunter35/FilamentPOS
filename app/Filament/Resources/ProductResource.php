@@ -33,9 +33,24 @@ class ProductResource extends Resource
 
     protected static ?int $navigationSort = 3;
 
+    public static function getModelLabel(): string
+    {
+        return __('product.navigation.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('product.navigation.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('product.navigation.label');
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return __('Product Management');
+        return __('product.navigation.group');
     }
     public static function form(Form $form): Form
     {

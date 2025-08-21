@@ -25,9 +25,24 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    public static function getModelLabel(): string
+    {
+        return __('category.navigation.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('category.navigation.plural_label');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('category.navigation.label');
+    }
+
     public static function getNavigationGroup(): ?string
     {
-        return __('Product Management');
+        return __('category.navigation.group');
     }
 
     protected static bool $isScopedToTenant = false;
@@ -41,12 +56,16 @@ class CategoryResource extends Resource
                         Forms\Components\Grid::make()
                             ->schema([
                                 Forms\Components\TextInput::make('name')
+                                    ->label(__('category.fields.name.label'))
+                                    ->placeholder(__('category.fields.name.placeholder'))
                                     ->required()
                                     ->maxLength(255)
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => $set('slug', Str::slug($state))),
 
                                 Forms\Components\TextInput::make('slug')
+                                    ->label(__('category.fields.slug.label'))
+                                    ->placeholder(__('category.fields.slug.placeholder'))
                                     ->disabled()
                                     ->dehydrated()
                                     ->required()
@@ -55,18 +74,19 @@ class CategoryResource extends Resource
                             ]),
 
                         Forms\Components\Select::make('parent_id')
-                            ->label('Parent')
+                            ->label(__('category.fields.parent_id.label'))
+                            ->placeholder(__('category.fields.parent_id.placeholder'))
                             ->relationship('parent', 'name', fn (Builder $query) => $query->where('parent_id', null))
                             ->searchable()
-                            ->preload()
-                            ->placeholder('Select parent category'),
+                            ->preload(),
 
                         Forms\Components\Toggle::make('is_visible')
-                            ->label('Visible to customers.')
+                            ->label(__('category.fields.is_visible.label'))
                             ->default(true),
 
                         Forms\Components\MarkdownEditor::make('description')
-                            ->label('Description'),
+                            ->label(__('category.fields.description.label'))
+                            ->placeholder(__('category.fields.description.placeholder')),
                     ])
                     ->columnSpan(['lg' => fn (?Category $record) => $record === null ? 3 : 2]),
                 Forms\Components\Section::make()
