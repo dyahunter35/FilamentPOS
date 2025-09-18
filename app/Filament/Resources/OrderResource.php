@@ -12,11 +12,13 @@ use App\Filament\Resources\OrderResource\RelationManagers\OrderMetasRelationMana
 use App\Filament\Resources\OrderResource\Widgets\OrderStats;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\Scopes\IsVisibleScope;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -65,15 +67,17 @@ class OrderResource extends Resource
             ->schema([
                 Forms\Components\Group::make()
                     ->schema([
+
                         Forms\Components\Section::make()
                             ->schema(static::getDetailsFormSchema())
                             ->columns(2),
 
-                        Forms\Components\Section::make('Order items')
+                        Forms\Components\Section::make(__('order.sections.order_items.label'))
                             ->headerActions([
                                 Action::make('reset')
-                                    ->modalHeading('Are you sure?')
-                                    ->modalDescription('All existing items will be removed from the order.')
+                                    ->label(__('order.actions.reset.label'))
+                                    ->modalHeading(__('order.actions.reset.modal.heading'))
+                                    ->modalDescription(__('order.actions.reset.modal.description'))
                                     ->requiresConfirmation()
                                     ->color('danger')
                                     ->action(fn(Forms\Set $set) => $set('items', [])),
@@ -82,17 +86,35 @@ class OrderResource extends Resource
                                 static::getItemsRepeater(),
                             ),
                     ])
-                    ->columnSpan(['lg' => fn(?Order $record) => $record === null ? 3 : 2]),
+                    ->columnSpan(['lg' => fn(?Order $record) => $record === null ? 2 : 2]),
 
                 Forms\Components\Section::make()
                     ->schema([
+
+                        Forms\Components\ToggleButtons::make('status')
+                            ->label(__('order.fields.status.label'))
+                            ->inline()
+                            ->options(OrderStatus::class)
+                            ->required(),
+
+                        Forms\Components\Select::make('currency')
+                            ->label(__('order.fields.currency.label'))
+                            ->placeholder(__('order.fields.currency.placeholder'))
+                            ->searchable()
+                            ->default('SDG')
+                            ->options([
+                                'SDG' => 'SDG',
+                                'USD' => 'USD',
+                            ])
+                            ->required(),
+
                         Forms\Components\Placeholder::make('created_at')
-                            ->label('Created at')
+                            ->label(__('order.fields.created_at.label'))
                             ->content(fn(Order $record): ?string => $record->created_at?->diffForHumans())
                             ->hidden(fn(?Order $record) => $record === null),
 
                         Forms\Components\Placeholder::make('updated_at')
-                            ->label('Last modified at')
+                            ->label(__('order.fields.updated_at.label'))
                             ->content(fn(Order $record): ?string => $record->updated_at?->diffForHumans())
                             ->hidden(fn(?Order $record) => $record === null),
                     ])
@@ -106,38 +128,45 @@ class OrderResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('number')
+                    ->label(__('order.fields.number.label'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('customer.name')
+                    ->label(__('order.fields.customer.label'))
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('order.fields.status.label'))
                     ->badge(),
                 Tables\Columns\TextColumn::make('currency')
-                    //->getStateUsing(fn ($record): ?string => Currency::find($record->currency)?->name ?? null)
+                    ->label(__('order.fields.currency.label'))
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('total')
+                    ->label(__('order.fields.total.label'))
                     ->searchable()
                     ->sortable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
-                            ->money(),
+                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
                     ]),
-                Tables\Columns\TextColumn::make('paid'),
+                Tables\Columns\TextColumn::make('paid')
+                    ->label(__('order.fields.paid.label')),
                 Tables\Columns\TextColumn::make('shipping')
-                    ->label('Shipping cost')
+                    ->label(__('order.fields.shipping.label'))
                     ->searchable()
                     ->sortable()
                     ->toggleable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
-                            ->money(),
+                            ->money()
+                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
+
                     ]),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Order Date')
+                    ->label(__('order.fields.created_at.label'))
                     ->date()
                     ->toggleable(),
             ])
@@ -187,25 +216,39 @@ class OrderResource extends Resource
                     ])
                     ->form([
                         Forms\Components\TextInput::make('total')
-                            ->label(trans('filament-invoices::messages.invoices.actions.total'))
+                            ->label(__('order.fields.total.label'))
                             ->numeric()
                             ->disabled(),
                         Forms\Components\TextInput::make('paid')
-                            ->label(trans('filament-invoices::messages.invoices.actions.paid'))
+                            ->label(__('order.fields.paid.label'))
                             ->numeric()
                             ->disabled(),
+                        Forms\Components\Select::make('payment_method')
+                            ->label(__('order.fields.payment_method.label'))
+                            ->required()
+                            ->default('bok')
+                            ->options([
+                                'cash' => __('order.fields.payment_method.options.cash'),
+                                'bok' => __('order.fields.payment_method.options.bok'),
+
+                            ]),
                         Forms\Components\TextInput::make('amount')
-                            ->label(trans('filament-invoices::messages.invoices.actions.amount'))
+                            ->label(__('order.fields.amount.label'))
                             ->required()
                             ->numeric(),
                     ])
                     ->action(function (array $data, Order $record) {
+                        if ($data['amount'] <= 0) {
+                            Notification::make()->send();
+                            return;
+                        }
                         $record->update([
                             'paid' => $record->paid + $data['amount']
                         ]);
 
                         $record->orderMetas()->create([
                             'key' => 'payments',
+                            'group' => $data['payment_method'] ?? 'cash',
                             'value' => $data['amount']
                         ]);
 
@@ -221,24 +264,24 @@ class OrderResource extends Resource
                         }
 
                         Notification::make()
-                            ->title(trans('filament-invoices::messages.invoices.actions.pay.notification.title'))
-                            ->body(trans('filament-invoices::messages.invoices.actions.pay.notification.body'))
+                            ->title(__('order.actions.pay.notification.title'))
+                            ->body(__('order.actions.pay.notification.body'))
                             ->success()
                             ->send();
                     })
                     ->icon('heroicon-o-credit-card')
-                    ->label(trans('pay'))
-                    ->modalHeading(trans('filament-invoices::messages.invoices.actions.pay.label'))
-                    ->tooltip(trans('filament-invoices::messages.invoices.actions.pay.label')),
+                    ->label(__('order.actions.pay.label'))
+                    ->modalHeading(__('order.actions.pay.modal.heading'))
+                    ->tooltip(__('order.actions.pay.label')),
 
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
-            ])
+            ])->defaultSort('created_at', 'desc')
             ->groupedBulkActions([
                 Tables\Actions\DeleteBulkAction::make()
                     ->action(function () {
                         Notification::make()
-                            ->title('Now, now, don\'t be cheeky, leave some records for others to play with!')
+                            ->title(__('order.actions.delete.notification'))
                             ->warning()
                             ->send();
                     }),
@@ -280,12 +323,14 @@ class OrderResource extends Resource
     /** @return Builder<Order> */
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withoutGlobalScope(SoftDeletingScope::class);
+        return parent::getEloquentQuery()
+            ->withoutGlobalScope(SoftDeletingScope::class)
+        ;
     }
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['number', 'customer.name'];
+        return ['number', 'registeredCustomer.name'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array
@@ -293,14 +338,16 @@ class OrderResource extends Resource
         /** @var Order $record */
 
         return [
-            'Customer' => optional($record->customer)->name,
+            __('order.fields.customer.label') => optional($record->registeredCustomer)->name,
+            __('order.fields.items.total.label') => number_format($record->total, 0),
+            __('order.fields.created_at.label') =>  $record->created_at
         ];
     }
 
     /** @return Builder<Order> */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['customer', 'items']);
+        return parent::getGlobalSearchEloquentQuery()->with(['registeredCustomer', 'items']);
     }
 
     public static function getNavigationBadge(): ?string
@@ -316,72 +363,90 @@ class OrderResource extends Resource
     {
         return [
             Forms\Components\TextInput::make('number')
+                ->label(__('order.fields.number.label'))
+                ->placeholder(__('order.fields.number.placeholder'))
                 ->default(Order::generateInvoiceNumber())
-                ->disabled()
+                ->readOnly()
                 ->dehydrated()
                 ->required()
                 ->maxLength(32)
                 ->unique(Order::class, 'number', ignoreRecord: true),
 
+            Forms\Components\ToggleButtons::make('is_guest')
+                ->label(__('order.fields.is_guest.label'))
+                ->live() // This makes the form update dynamically when toggled
+                ->default(true) // Default based on whether customer_id is null
+                ->inline()
+                ->grouped()
+                ->boolean(),
+
+            // Field for selecting a REGISTERED customer.
+            // It is only visible when 'is_guest' is FALSE.
             Forms\Components\Select::make('customer_id')
-                ->relationship('customer', 'name')
+                ->label(__('order.fields.customer.label'))
+                ->placeholder(__('order.fields.customer.placeholder'))
+                ->relationship('registeredCustomer', 'name')
                 ->searchable()
-                ->required()
+                ->required(fn(Get $get) => !$get('is_guest'))
                 ->preload()
+                // Required only if not a guest
+                ->visible(fn(Get $get) => !$get('is_guest'))
                 ->createOptionForm([
+
                     Forms\Components\TextInput::make('name')
+                        ->label(__('customer.fields.name.label'))
+                        ->placeholder(__('customer.fields.name.placeholder'))
                         ->required()
                         ->maxLength(255),
 
                     Forms\Components\TextInput::make('email')
-                        ->label('Email address')
-                        ->required()
+                        ->label(__('customer.fields.email.label'))
+                        ->placeholder(__('customer.fields.email.placeholder'))
                         ->email()
                         ->maxLength(255)
                         ->unique(),
 
                     Forms\Components\TextInput::make('phone')
+                        ->label(__('customer.fields.phone.label'))
+                        ->placeholder(__('customer.fields.phone.placeholder'))
                         ->maxLength(255),
 
                     Forms\Components\Hidden::make('branch_id')
                         ->default(Filament::getTenant()->id),
 
-                    Forms\Components\Select::make('gender')
-                        ->placeholder('Select gender')
-                        ->options([
-                            'male' => 'Male',
-                            'female' => 'Female',
-                        ])
-                        ->required()
-                        ->native(false),
                 ])
                 ->createOptionAction(function (Action $action) {
                     return $action
-                        ->modalHeading('Create customer')
-                        ->modalSubmitActionLabel('Create customer')
+                        ->modalHeading(__('customer.actions.create.modal.heading'))
+                        ->modalSubmitActionLabel(__('customer.actions.create.modal.submit'))
                         ->modalWidth('lg');
-                }),
+                }),  // Visible only if not a guest
 
-            Forms\Components\ToggleButtons::make('status')
-                ->inline()
-                ->options(OrderStatus::class)
-                ->required(),
+            // Section for GUEST customer details.
+            // This entire section is only visible when 'is_guest' is TRUE.
+            Forms\Components\Section::make(__('order.sections.guest_customer.label'))
+                ->schema([
+                    // Use dot notation to map these fields to the `guest_customer` JSON column.
+                    Forms\Components\TextInput::make('guest_customer.name')
+                        ->label(__('order.fields.guest_customer.name.label'))
+                        ->placeholder(__('order.fields.guest_customer.name.placeholder'))
+                        ->required(fn(Get $get) => $get('is_guest')),
 
-            Forms\Components\Select::make('currency')
-                ->searchable()
-                ->options([
-                    'SDG' => 'SDG',
-                    'USD' => 'USD',
+                    Forms\Components\TextInput::make('guest_customer.email')
+                        ->label(__('order.fields.guest_customer.email.label'))
+                        ->placeholder(__('order.fields.guest_customer.email.placeholder'))
+                        ->email(),
+
+                    Forms\Components\TextInput::make('guest_customer.phone')
+                        ->label(__('order.fields.guest_customer.phone.label'))
+                        ->placeholder(__('order.fields.guest_customer.phone.placeholder'))
+                        ->tel()
+                        ->prefix('+'),
+                ])->columns([
+                    'lg' => 3,
+                    'md' => 2,
                 ])
-                //->getSearchResultsUsing(fn (string $query) => Currency::where('name', 'like', "%{$query}%")->pluck('name', 'id'))
-                //->getOptionLabelUsing(fn ($value): ?string => Currency::firstWhere('id', $value)?->getAttribute('name'))
-                ->required(),
-
-            /*AddressForm::make('address')
-                ->columnSpan('full'),*/
-
-            Forms\Components\MarkdownEditor::make('notes')
-                ->columnSpan('full'),
+                ->visible(fn(Get $get) => $get('is_guest')),
         ];
     }
 
@@ -396,13 +461,16 @@ class OrderResource extends Resource
                 //->collapsed(fn($record) => $record)
                 ->cloneable()
                 ->relationship('items')
-                ->label(trans('filament-invoices::messages.invoices.columns.items'))
-                ->itemLabel(trans('filament-invoices::messages.invoices.columns.item'))
+                ->label(__('order.fields.items.label'))
+                ->itemLabel(__('order.fields.items.item_label'))
                 ->schema([
                     Forms\Components\Select::make('product_id')
-                        ->label('Product')
+                        ->label(__('order.fields.items.product.label'))
+                        ->placeholder(__('order.fields.items.product.placeholder'))
                         ->options(
-                            Product::get()->mapWithKeys(function (Product $product) {
+                            Product::whereHas('branch', function ($query) {
+                                $query->where('branches.id', Filament::getTenant()->id);
+                            })->get()->mapWithKeys(function (Product $product) {
                                 return [$product->id => sprintf('%s - %s ($%s)', $product->name, $product->category?->name, $product->price)];
                             })
                         )
@@ -419,29 +487,34 @@ class OrderResource extends Resource
                         ->searchable(),
 
                     Forms\Components\TextInput::make('description')
-                        ->label(trans('filament-invoices::messages.invoices.columns.description'))
+                        ->label(__('order.fields.items.description.label'))
+                        ->placeholder(__('order.fields.items.description.placeholder'))
                         ->columnSpan(6),
                     Forms\Components\TextInput::make('price')
-                        ->label(trans('filament-invoices::messages.invoices.columns.price'))
+                        ->label(__('order.fields.items.price.label'))
+                        ->placeholder(__('order.fields.items.price.placeholder'))
                         ->columnSpan(3)
                         ->default(0)
                         ->numeric(),
                     Forms\Components\TextInput::make('qty')
                         ->live()
                         ->columnSpan(3)
-                        ->label(trans('filament-invoices::messages.invoices.columns.qty'))
+                        ->label(__('order.fields.items.qty.label'))
+                        ->placeholder(__('order.fields.items.qty.placeholder'))
                         ->default(1)
                         ->numeric(),
                     Forms\Components\TextInput::make('sub_discount')
-                        ->label(trans('filament-invoices::messages.invoices.columns.discount'))
+                        ->label(__('order.fields.items.sub_discount.label'))
+                        ->placeholder(__('order.fields.items.sub_discount.placeholder'))
                         ->columnSpan(3)
                         ->default(0)
                         ->numeric()
-                        ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? 'Discount cannot exceed the price value.' : null)
+                        ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? __('order.fields.items.sub_discount.hint_error') : null)
                         ->hintColor('danger'),
 
                     Forms\Components\TextInput::make('sub_total')
-                        ->label(trans('filament-invoices::messages.invoices.columns.total'))
+                        ->label(__('order.fields.items.sub_total.label'))
+                        ->placeholder(__('order.fields.items.sub_total.placeholder'))
                         ->columnSpan(3)
                         ->dehydrated(true)
                         ->numeric(),
@@ -452,19 +525,21 @@ class OrderResource extends Resource
                 })
                 ->columns(12)
                 ->columnSpanFull(),
-            Forms\Components\Section::make(trans('filament-invoices::messages.invoices.sections.totals.title'))
+            Forms\Components\Section::make(__('order.sections.totals.label'))
                 ->schema([
                     Forms\Components\TextInput::make('shipping')
+                        ->label(__('order.fields.shipping.label'))
+                        ->placeholder(__('order.fields.shipping.placeholder'))
                         ->lazy()
                         ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
                             self::calculate($get, $set);
                         })
-                        ->label(trans('filament-invoices::messages.invoices.columns.shipping'))
                         ->numeric()
                         ->minValue(0)
                         ->default(0),
                     Forms\Components\TextInput::make('install')
-                        ->label(__('installation'))
+                        ->label(__('order.fields.installation.label'))
+                        ->placeholder(__('order.fields.installation.placeholder'))
                         ->numeric()
                         ->lazy()
                         ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
@@ -473,19 +548,22 @@ class OrderResource extends Resource
                         ->default(0),
 
                     Forms\Components\TextInput::make('discount')
+                        ->label(__('order.fields.items.discount.label'))
+                        ->placeholder(__('order.fields.items.discount.placeholder'))
                         ->disabled()
                         ->dehydrated(true)
-                        ->label(trans('filament-invoices::messages.invoices.columns.discount'))
                         ->numeric()
                         ->default(0),
                     Forms\Components\TextInput::make('total')
+                        ->label(__('order.fields.total.label'))
+                        ->placeholder(__('order.fields.total.placeholder'))
                         ->disabled()
                         ->dehydrated(true)
-                        ->label(trans('filament-invoices::messages.invoices.columns.total'))
                         ->numeric()
                         ->default(0),
                     Forms\Components\Textarea::make('notes')
-                        ->label(trans('filament-invoices::messages.invoices.columns.notes'))
+                        ->label(__('order.fields.notes.label'))
+                        ->placeholder(__('order.fields.notes.placeholder'))
                         ->columnSpanFull(),
                 ])->columns(4)->collapsible(),
         ];

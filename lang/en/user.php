@@ -11,6 +11,10 @@ return [
         'create' => 'Add User',
         'edit' => 'Edit User',
     ],
+    'sections' => [
+        'general' => 'General Information',
+        'roles' => 'Roles and Permissions',
+    ],
     'fields' => [
         'name' => [
             'label' => 'Name',
@@ -31,6 +35,10 @@ return [
         'roles' => [
             'label' => 'Roles',
             'placeholder' => 'Select user roles',
+        ],
+        'branch' => [
+            'label' => 'Branch',
+            'placeholder' => 'Select branch',
         ],
         'created_at' => [
             'label' => 'Created at',

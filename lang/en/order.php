@@ -11,7 +11,29 @@ return [
         'create' => 'Add Order',
         'edit' => 'Edit Order',
     ],
+    'sections' => [
+        'guest_customer' => [
+            'label' => 'Guest Customer Details',
+        ],
+        'order_items' => [
+            'label' => 'Order Items',
+            'actions' => [
+                'reset' => 'Reset Items',
+            ],
+        ],
+        'totals' => [
+
+
+            'label' => 'Order Totals',
+        ]
+    ],
     'fields' => [
+        'is_guest' => [
+            'label' => 'Is this a guest customer?',
+            'placeholder' => '',
+        ],
+
+
         'number' => [
             'label' => 'Order Number',
             'placeholder' => 'Enter order number',
@@ -20,17 +42,97 @@ return [
             'label' => 'Customer',
             'placeholder' => 'Select customer',
         ],
+        'guest_customer' => [
+            'name' => [
+                'label' => 'Name',
+                'placeholder' => 'Enter guest customer name',
+            ],
+            'email' => [
+                'label' => 'Email',
+                'placeholder' => 'Enter guest customer email',
+            ],
+            'phone' => [
+                'label' => 'Phone',
+                'placeholder' => 'Enter guest customer phone number',
+            ],
+        ],
         'status' => [
             'label' => 'Status',
             'placeholder' => 'Select order status',
+            'options' => [
+                'all' => 'All',
+                'new' => 'New',
+                'processing' => 'Processing',
+                'payed' => 'Payed',
+                'delivered' => 'Delivered',
+                'installed' => 'Installed',
+                'cancelled' => 'Cancelled',
+            ]
         ],
         'currency' => [
             'label' => 'Currency',
             'placeholder' => 'Select currency',
         ],
+
+        'paid' => [
+            'label' => 'Paid',
+            'placeholder' => '',
+        ],
+        'total' => [
+            'label' => 'Total',
+            'placeholder' => '',
+        ],
+        'notes' => [
+            'label' => 'Notes',
+            'placeholder' => 'Enter any additional notes',
+        ],
         'items' => [
             'label' => 'Order Items',
             'placeholder' => 'Add order items',
+            'item_label' => 'Item',
+
+            'product' => [
+                'label' => 'Product',
+                'placeholder' => 'Select product',
+            ],
+            'description' => [
+                'label' => 'Description',
+                'placeholder' => 'Enter product description',
+            ],
+            'price' => [
+                'label' => 'Price',
+                'placeholder' => 'Enter price',
+            ],
+            'qty' => [
+                'label' => 'Quantity',
+                'placeholder' => 'Enter quantity',
+            ],
+            'discount' => [
+                'label' => 'Discount',
+                'placeholder' => 'Enter discount amount',
+            ],
+            'total' => [
+                'label' => 'Total',
+                'placeholder' => '',
+            ],
+
+            'sub_discount' => [
+                'label' => 'Item Discount',
+                'placeholder' => 'Enter item discount',
+                'hint_error' => 'Discount cannot exceed the price value.',
+            ],
+            'sub_total' => [
+                'label' => 'Item Total',
+                'placeholder' => '',
+            ],
+        ],
+        'shipping' => [
+            'label' => 'Shipping Cost',
+            'placeholder' => 'Enter shipping cost',
+        ],
+        'installation' => [
+            'label' => 'Installation Cost',
+            'placeholder' => 'Enter installation cost',
         ],
         'created_at' => [
             'label' => 'Created at',
@@ -40,6 +142,18 @@ return [
             'label' => 'Last modified at',
             'placeholder' => '',
         ],
+
+        'payment_method' => [
+            'label' => 'Payment Method',
+            'placeholder' => 'Select payment method',
+            'options' => [
+                'cash' => 'Cash',
+                'bok' => 'mBOK',
+            ],
+        ],
+        'amount'=>[
+            'label'=>'Amount'
+        ]
     ],
     'actions' => [
         'reset' => [
@@ -49,23 +163,48 @@ return [
                 'description' => 'All existing items will be removed from the order.',
             ],
         ],
-    ],
-    'sections' => [
-        'order_items' => [
-            'label' => 'Order Items',
-            'actions' => [
-                'reset' => 'Reset Items',
+        'create' => [
+            'modal' => [
+                'heading' => 'Create Order',
+                'submit' => 'Create',
+            ],
+        ],
+        'delete' => [
+            'notification' => 'Now, now, don\'t be cheeky, leave some records for others to play with!',
+        ],
+        'pay' => [
+            'label' => 'Pay',
+            'modal' => [
+                'heading' => 'Process Payment',
+            ],
+            'notification' => [
+                'title' => 'Payment Processed',
+                'body' => 'The payment has been processed successfully.',
             ],
         ],
     ],
     'widgets' => [
         'stats' => [
-            'label' => 'Order Statistics',
-            'count' => 'Total Orders',
-            'pending' => 'Pending Orders',
-            'processing' => 'Processing Orders',
-            'completed' => 'Completed Orders',
-            'cancelled' => 'Cancelled Orders',
+            'orders' => [
+                'label' => 'Order Counts',
+                'count' => 'Total Orders',
+            ],
+
+            'open_orders' => [
+                'label' => 'Open Orders',
+                'count' => 'Open Orders Count',
+            ],
+            'avg_total' => [
+                'label' => 'Average Total',
+                'icon' => 'heroicon-o-currency-dollar',
+            ],
         ],
     ],
+    'invoice'=>[
+
+        'labels'=>[
+            'today'=> 'Today',
+            'subtotal'=> 'Before Discount'
+        ]
+    ]
 ];

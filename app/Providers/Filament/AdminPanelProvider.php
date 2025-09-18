@@ -23,6 +23,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class AdminPanelProvider extends PanelProvider
@@ -40,8 +41,15 @@ class AdminPanelProvider extends PanelProvider
             //->brandLogo(asset('asset/images/logo/gas 200.png'))
             ->registration()
             ->tenant(Branch::class, slugAttribute: 'slug')
-            ->tenantRegistration(RegisterBranch::class)
-            ->tenantProfile(EditBranch::class)
+            ->when(
+                // Condition: Check if the logged-in user's email is the specific one
+                Auth::check() && Auth::user()->email === 'admin@example.com',
+
+                // Callback: This logic only runs if the condition is true
+                fn(Panel $panel) => $panel
+                    ->tenantRegistration(RegisterBranch::class)
+                    ->tenantProfile(EditBranch::class)
+            )
             ->colors([
                 'primary' => Color::Amber,
             ])

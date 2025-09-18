@@ -2,11 +2,14 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource;
+use App\Models\Order;
 use Filament\Actions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
+use Illuminate\Database\Eloquent\Builder;
 
 class ListOrders extends ListRecords
 {
@@ -28,13 +31,44 @@ class ListOrders extends ListRecords
 
     public function getTabs(): array
     {
+        $tabs = [
+            null => Tab::make('All')
+            ->label(__('order.fields.status.options.all'))
+            ->icon('heroicon-o-rectangle-stack') // Default icon for "All" tab
+            ,
+        ];
+
+        // Loop through each case in the ProductStatus Enum
+        foreach (OrderStatus::cases() as $status) {
+            $tabs[$status->value] = Tab::make($status->value)
+                ->label($status->getLabel()) // Use the custom label
+                ->icon($status->getIcon()) // Use the custom label
+                ->modifyQueryUsing(function (Builder $query) use ($status) {
+                    // Filter the query based on the status
+                    $query->where('status', $status);
+                })
+                ->badge(Order::query()->where('status', $status)->count()) // Optional: Add a count badge
+                ->badgeColor($status->getColor()); // Use a method to get the badge color
+        }
+
+        return $tabs;
+
         return [
-            null => Tab::make('All'),
-            'new' => Tab::make()->query(fn ($query) => $query->where('status', 'new')),
-            'processing' => Tab::make()->query(fn ($query) => $query->where('status', 'processing')),
-            'installed' => Tab::make()->query(fn ($query) => $query->where('status', 'installed')),
-            'delivered' => Tab::make()->query(fn ($query) => $query->where('status', 'delivered')),
-            'cancelled' => Tab::make()->query(fn ($query) => $query->where('status', 'cancelled')),
+            null => Tab::make('All')->label(__('order.fields.status.options.all')),
+            'new' => Tab::make()->query(fn($query) => $query->where('status', 'new'))
+                ->label(__('order.fields.status.options.new'))
+                ->icon('heroicon-o-plus'),
+            'processing' => Tab::make()->query(fn($query) => $query->where('status', 'processing'))
+                ->label(__('order.fields.status.options.processing'))
+                ->icon('heroicon-o-cog'),
+            'payed' => Tab::make()->query(fn($query) => $query->where('status', 'payed'))
+                ->label(__('order.fields.status.options.payed')),
+            'installed' => Tab::make()->query(fn($query) => $query->where('status', 'installed'))
+                ->label(__('order.fields.status.options.installed')),
+            'delivered' => Tab::make()->query(fn($query) => $query->where('status', 'delivered'))
+                ->label(__('order.fields.status.options.delivered')),
+            'cancelled' => Tab::make()->query(fn($query) => $query->where('status', 'cancelled'))
+                ->label(__('order.fields.status.options.cancelled')),
         ];
     }
 }

@@ -36,62 +36,6 @@ class ViewOrder extends ViewRecord
                     $this->js('window.print()');
                 }),
 
-            Actions\Action::make('pay')
-                ->visible(fn($record) => ($record->total != $record->paid) || $record->status === OrderStatus::Processing || $record->status === OrderStatus::New)
-                ->requiresConfirmation()
-                ->color('info')
-                ->fillForm(fn($record) => [
-                    'total' => $record->total,
-                    'paid' => $record->paid,
-                    'amount' => $record->total - $record->paid,
-                ])
-                ->form([
-                    Forms\Components\TextInput::make('total')
-                        ->label(trans('filament-invoices::messages.invoices.actions.total'))
-                        ->numeric()
-                        ->disabled(),
-                    Forms\Components\TextInput::make('paid')
-                        ->label(trans('filament-invoices::messages.invoices.actions.paid'))
-                        ->numeric()
-                        ->disabled(),
-                    Forms\Components\TextInput::make('amount')
-                        ->label(trans('filament-invoices::messages.invoices.actions.amount'))
-                        ->required()
-                        ->numeric(),
-                ])
-                ->action(function (array $data, Order $record) {
-                    $record->update([
-                        'paid' => $record->paid + $data['amount']
-                    ]);
-
-                    $record->orderMetas()->create([
-                        'key' => 'payments',
-                        'value' => $data['amount']
-                    ]);
-
-                    $record->orderLogs()->create([
-                        'log' => 'Paid ' . number_format($data['amount'], 2) . ' ' . $record->currency . ' By: ' . auth()->user()->name,
-                        'type' => 'payment',
-                    ]);
-
-                    if ($record->total === $record->paid) {
-                        $record->update([
-                            'status' => OrderStatus::Payed
-                        ]);
-                    }
-
-                    Notification::make()
-                        ->title(trans('filament-invoices::messages.invoices.actions.pay.notification.title'))
-                        ->body(trans('filament-invoices::messages.invoices.actions.pay.notification.body'))
-                        ->success()
-                        ->send();
-                })
-                ->icon('heroicon-o-credit-card')
-                ->label(trans('pay'))
-                ->modalHeading(trans('filament-invoices::messages.invoices.actions.pay.label'))
-                ->tooltip(trans('filament-invoices::messages.invoices.actions.pay.label')),
-
-
-        ];
+              ];
     }
 }

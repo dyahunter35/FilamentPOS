@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\GuestCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,6 +19,8 @@ class Customer extends Model implements HasMedia
 
     protected $guarded = [];
 
+
+
     /** @return HasManyThrough<Payment> */
     public function payments(): HasManyThrough
     {
@@ -28,5 +31,6 @@ class Customer extends Model implements HasMedia
     {
         return $this->belongsTo(Branch::class);
     }
-    //
+
+   
 }

@@ -12,16 +12,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_logs', function (Blueprint $table) {
-            $table->id();
+        if (!Schema::hasTable('order_logs')) {
 
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            Schema::create('order_logs', function (Blueprint $table) {
+                $table->id();
 
-            $table->string('type')->default('info')->nullable();
-            $table->json('log')->nullable();
+                $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
 
-            $table->timestamps();
-        });
+                $table->string('type')->default('info')->nullable();
+                $table->json('log')->nullable();
+
+                $table->timestamps();
+            });
+        }
     }
 
     /**

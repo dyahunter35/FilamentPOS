@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\GuestCustomer;
 use App\Enums\OrderStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,7 @@ class Order extends Model
         'shipping',
         'shipping_method',
         'notes',
+        'guest_customer',
         'caused_by',
         'created_at',
         'updated_at'
@@ -34,17 +36,12 @@ class Order extends Model
 
     protected $casts = [
         'status' => OrderStatus::class,
+        'guest_customer' => GuestCustomer::class,
     ];
 
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
-    }
-
-    /** @return BelongsTo<Customer,self> */
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
     }
 
     /** @return HasMany<OrderItem> */
@@ -70,6 +67,25 @@ class Order extends Model
          return $this->belongsTo(User::class,'caused_by');
      }
 
+      /**
+     * Define the relationship to a registered customer.
+     */
+    public function registeredCustomer(): BelongsTo
+    {
+        // Assuming your registered customer model is 'Customer'
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    /**
+     * This is the magic accessor. It returns the registered customer if one exists,
+     * otherwise it returns the temporary guest customer object from the JSON column.
+     */
+    public function getCustomerAttribute()
+    {
+        return $this->registeredCustomer ?? $this->guest_customer;
+    }
+
+    //
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

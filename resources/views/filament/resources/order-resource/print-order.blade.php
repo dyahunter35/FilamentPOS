@@ -76,7 +76,8 @@
                                 <div>
                                     <div class="flex justify-between gap-4">
                                         <div class="text-gray-400">
-                                            {{ trans('Today') }} : </div>
+                                    {{ trans('order.invoice.labels.today') }}
+                                             : </div>
                                         <div>{{ now()->toDateString() }}</div>
                                     </div>
                                     <div class="flex justify-between gap-4">
@@ -277,7 +278,7 @@
                         <div class="flex flex-col gap-2 mt-4  w-full">
                             <div class="flex justify-between">
                                 <div class="font-bold">
-                                    {{ trans('filament-invoices::messages.invoices.view.subtotal') }}
+                                    {{ trans('order.invoice.labels.subtotal') }}
                                 </div>
                                 <div>
                                     {{ number_format($this->getRecord()->total + $this->getRecord()->discount - ($this->getRecord()->install + $this->getRecord()->shipping), 2) }}
@@ -286,28 +287,29 @@
                             </div>
                             <div class="flex justify-between">
                                 <div class="font-bold">
-                                    {{ trans('shipping') }}
+                                    {{ trans('order.fields.shipping.label') }}
                                 </div>
                                 <div>
                                     {{ number_format($this->getRecord()->shipping, 2) }} <small
                                         class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
-                            <div class="flex justify-between">
-                                <div class="font-bold">
-                                    {{ trans('install price') }}
-                                </div>
-                                <div>
-                                    {{ number_format($this->getRecord()->install, 2) }} <small
-                                        class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
-                                </div>
-                            </div>
+
                             <div class="flex justify-between">
                                 <div class="font-bold">
                                     {{ trans('filament-invoices::messages.invoices.view.discount') }}
                                 </div>
                                 <div>
                                     {{ number_format($this->getRecord()->discount, 2) }} <small
+                                        class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                </div>
+                            </div>
+                            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+                                <div class="font-bold">
+                                    {{ trans('filament-invoices::messages.invoices.view.total') }}
+                                </div>
+                                <div>
+                                    {{ number_format($this->getRecord()->total, 2) }} <small
                                         class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>

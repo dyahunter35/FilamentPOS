@@ -11,18 +11,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedInteger('sort')->default(0);
-            $table->foreignId('product_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->foreignId('order_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->double('qty')->default(1)->nullable();
-            $table->double('price')->default(0);
-            $table->double('sub_discount')->default(0);
-            $table->double('sub_total')->default(0);
-            $table->text('description')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('order_items')) {
+
+            Schema::create('order_items', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedInteger('sort')->default(0);
+                $table->foreignId('product_id')->nullable()->constrained()->cascadeOnDelete();
+                $table->foreignId('order_id')->nullable()->constrained()->cascadeOnDelete();
+                $table->double('qty')->default(1)->nullable();
+                $table->double('price')->default(0);
+                $table->double('sub_discount')->default(0);
+                $table->double('sub_total')->default(0);
+                $table->text('description')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

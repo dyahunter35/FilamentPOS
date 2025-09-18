@@ -11,6 +11,11 @@ return [
         'create' => 'إضافة مستخدم',
         'edit' => 'تعديل مستخدم',
     ],
+
+    'sections' => [
+        'general' => 'المعلومات العامة',
+        'roles' => 'الأدوار والصلاحيات',
+    ],
     'fields' => [
         'name' => [
             'label' => 'الاسم',
@@ -31,6 +36,10 @@ return [
         'roles' => [
             'label' => 'الأدوار',
             'placeholder' => 'اختر أدوار المستخدم',
+        ],
+        'branch' => [
+            'label' => 'الفرع',
+            'placeholder' => 'اختر الفرع',
         ],
         'created_at' => [
             'label' => 'تاريخ الإنشاء',

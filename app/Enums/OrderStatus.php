@@ -22,14 +22,7 @@ enum OrderStatus: string implements HasColor, HasIcon, HasLabel
 
     public function getLabel(): string
     {
-        return match ($this) {
-            self::New => 'New',
-            self::Processing => 'Processing',
-            self::Payed => 'Processing',
-            self::Delivered => 'Delivered',
-            self::Installed => 'installed',
-            self::Cancelled => 'Cancelled',
-        };
+        return __('order.fields.status.options.'.$this->value);
     }
 
     public function getColor(): string | array | null

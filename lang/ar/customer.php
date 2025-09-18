@@ -5,6 +5,7 @@ return [
         'label' => 'العملاء',
         'plural_label' => 'العملاء',
         'model_label' => 'عميل',
+        'search_key'=> 'اسم العميل'
     ],
     'breadcrumbs' => [
         'index' => 'العملاء',
@@ -25,8 +26,8 @@ return [
             'placeholder' => 'أدخل رقم الهاتف',
         ],
         'gender' => [
-            'label' => 'الجنس',
-            'placeholder' => 'اختر الجنس',
+            'label' => 'النوع',
+            'placeholder' => 'اختر النوع',
             'options' => [
                 'male' => 'ذكر',
                 'female' => 'أنثى',
@@ -57,4 +58,6 @@ return [
             'inactive' => 'العملاء غير النشطين',
         ],
     ],
+
+    'guest_suffix' => ' (ضيف)',
 ];

@@ -12,18 +12,21 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_metas', function (Blueprint $table) {
-            $table->id();
+        if (!Schema::hasTable('order_metas')) {
 
-            $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
+            Schema::create('order_metas', function (Blueprint $table) {
+                $table->id();
 
-            $table->string('key');
-            $table->json('value')->nullable();
-            $table->string('type')->default('text')->nullable();
-            $table->string('group')->default('general')->nullable();
+                $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
 
-            $table->timestamps();
-        });
+                $table->string('key');
+                $table->json('value')->nullable();
+                $table->string('type')->default('text')->nullable();
+                $table->string('group')->default('general')->nullable();
+
+                $table->timestamps();
+            });
+        }
     }
 
     /**

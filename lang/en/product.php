@@ -1,8 +1,9 @@
 <?php
+
 return [
     'navigation' => [
         'group' => 'Product Management',
-        'label' => 'Products',
+        'label' => 'Product',
         'plural_label' => 'Products',
         'model_label' => 'Product',
     ],
@@ -11,6 +12,26 @@ return [
         'create' => 'Add Product',
         'edit' => 'Edit Product',
     ],
+    'sections' => [
+        'images' => [
+            'label' => 'Images',
+        ],
+        'pricing' => [
+            'label' => 'Pricing',
+        ],
+        'inventory' => [
+            'label' => 'Inventory',
+        ],
+        'shipping' => [
+            'label' => 'Shipping',
+        ],
+        'status' => [
+            'label' => 'Status',
+        ],
+        'associations' => [
+            'label' => 'Associations',
+        ],
+    ],
     'fields' => [
         'name' => [
             'label' => 'Name',
@@ -18,45 +39,119 @@ return [
         ],
         'slug' => [
             'label' => 'Slug',
-            'placeholder' => 'Auto-generated from name',
+            'placeholder' => 'Enter slug',
         ],
         'description' => [
             'label' => 'Description',
             'placeholder' => 'Enter product description',
         ],
-        'media' => [
-            'label' => 'Images',
-            'placeholder' => 'Upload product images',
-        ],
         'price' => [
             'label' => 'Price',
-            'placeholder' => 'Enter product price',
+            'placeholder' => 'Enter price',
         ],
         'old_price' => [
             'label' => 'Compare at price',
-            'placeholder' => 'Enter old price',
+            'placeholder' => 'Enter compare at price',
         ],
         'cost' => [
             'label' => 'Cost per item',
             'placeholder' => 'Enter cost per item',
-            'helper_text' => 'Customers won\'t see this price.',
+            'helper' => 'Customers won\'t see this price.',
         ],
-        'created_at' => [
-            'label' => 'Created at',
-            'placeholder' => '',
+        'sku' => [
+            'label' => 'SKU (Stock Keeping Unit)',
+            'placeholder' => 'Enter SKU',
         ],
-        'updated_at' => [
-            'label' => 'Last modified at',
-            'placeholder' => '',
+        'barcode' => [
+            'label' => 'Barcode (ISBN, UPC, GTIN, etc.)',
+            'placeholder' => 'Enter barcode',
+        ],
+        'qty' => [
+            'label' => 'Quantity',
+            'placeholder' => 'Enter quantity',
+        ],
+        'security_stock' => [
+            'label' => 'Security Stock',
+            'placeholder' => 'Enter security stock',
+            'helper' => 'The safety stock is the limit stock for your products which alerts you if the product stock will soon be out of stock.',
+        ],
+        'backorder' => [
+            'label' => 'This product can be returned',
+        ],
+        'requires_shipping' => [
+            'label' => 'This product will be shipped',
+        ],
+        'is_visible' => [
+            'label' => 'Visible',
+            'helper' => 'This product will be hidden from all sales channels.',
+        ],
+        'published_at' => [
+            'label' => 'Availability',
+        ],
+        'branch' => [
+            'label' => 'Branch',
+            'placeholder' => 'Select branches',
+        ],
+        'category' => [
+            'label' => 'Category',
+            'placeholder' => 'Select a category',
         ],
     ],
-    'widgets' => [
-        'stats' => [
-            'label' => 'Product Statistics',
-            'count' => 'Total Products',
-            'active' => 'Active Products',
-            'inactive' => 'Inactive Products',
-            'out_of_stock' => 'Out of Stock',
+    'columns' => [
+        'image' => [
+            'label' => 'Image',
+        ],
+        'name' => [
+            'label' => 'Name',
+        ],
+        'category' => [
+            'label' => 'Category',
+        ],
+        'visibility' => [
+            'label' => 'Visibility',
+        ],
+        'price' => [
+            'label' => 'Price',
+        ],
+        'sku' => [
+            'label' => 'SKU',
+        ],
+        'quantity' => [
+            'label' => 'Quantity',
+
+        ],
+        'branch' => [
+            'label' => 'Branch',
+        ],
+        'security_stock' => [
+            'label' => 'Security Stock',
+        ],
+        'publish_date' => [
+            'label' => 'Publish Date',
+        ],
+    ],
+    'filters' => [
+        'constraints' => [
+            'name' => 'Name',
+            'slug' => 'Slug',
+            'sku' => 'SKU (Stock Keeping Unit)',
+            'barcode' => 'Barcode (ISBN, UPC, GTIN, etc.)',
+            'description' => 'Description',
+            'old_price' => 'Compare at price',
+            'price' => 'Price',
+            'cost' => 'Cost per item',
+            'qty' => 'Quantity',
+            'security_stock' => 'Security Stock',
+            'is_visible' => 'Visibility',
+            'featured' => 'Featured',
+            'backorder' => 'Backorder',
+            'requires_shipping' => 'Requires Shipping',
+            'published_at' => 'Published At',
+        ],
+    ],
+    'actions' => [
+        'delete' => [
+            'notification' => 'Now, now, don\'t be cheeky, leave some records for others to play with!',
         ],
     ],
 ];

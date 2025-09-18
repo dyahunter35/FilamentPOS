@@ -5,6 +5,7 @@ return [
         'label' => 'Customers',
         'plural_label' => 'Customers',
         'model_label' => 'Customer',
+        'search_key'=>'Customer name'
     ],
     'breadcrumbs' => [
         'index' => 'Customers',
@@ -57,4 +58,6 @@ return [
             'inactive' => 'Inactive Customers',
         ],
     ],
+
+    'guest_suffix' => ' (Guest)',
 ];

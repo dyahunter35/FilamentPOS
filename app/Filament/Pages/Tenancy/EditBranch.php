@@ -11,6 +11,7 @@ use Filament\Forms\Form;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Filament\Pages\Tenancy\RegisterTenant;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class EditBranch extends EditTenantProfile
@@ -48,12 +49,21 @@ class EditBranch extends EditTenantProfile
         return $record;
     }
     protected function getRedirectUrl(): ?string
-{
-    return route(Filament::getRedirectUrl());
-}
+    {
+        return route(Filament::getRedirectUrl());
+    }
 
     protected function getRecord(): Model
     {
         return Branch::findOrFail($this->routeParameter('record'));
-}
+    }
+
+    public static function canAccess(): bool
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Return true only if the user's email matches the specific email
+        return $user && $user->email === 'admin@example.com';
+    }
 }

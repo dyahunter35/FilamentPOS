@@ -19,23 +19,18 @@ class MainDashboard extends BaseDashboard
 
     public static function getNavigationLabel(): string
     {
-        return __('dashboard');
+        return __('dashboard.navigation.label');
     }
 
     public function getHeading(): string
     {
-        return __('Analyses');
+        return __('dashboard.heading');
     }
 
     public function getSubheading(): string
     {
-        return __('subtitle');
+        return __('dashboard.subheading');
     }
-
-    /* public static function getNavigationGroup(): ?string
-    {
-        return __('vendor.navigation.group');
-    } */
 
     protected function getHeaderWidgets(): array
     {
