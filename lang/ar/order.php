@@ -1,4 +1,5 @@
 <?php
+
 return [
     'navigation' => [
         'group' => 'المتجر',
@@ -11,30 +12,25 @@ return [
         'create' => 'إضافة طلب',
         'edit' => 'تعديل طلب',
     ],
-
     'sections' => [
         'guest_customer' => [
-            'label' => 'تفاصيل العميل الزائر',
+            'label' => 'بيانات العميل الزائر',
         ],
         'order_items' => [
-            'label' => 'عناصر الطلب',
+            'label' => 'بنود الطلب',
+            'actions' => [
+                'reset' => 'إعادة تعيين البنود',
+            ],
         ],
         'totals' => [
             'label' => 'إجماليات الطلب',
-        ],
-        'order_items' => [
-            'label' => 'عناصر الطلب',
-            'actions' => [
-                'reset' => 'إعادة تعيين العناصر',
-            ],
-        ],
+        ]
     ],
     'fields' => [
         'is_guest' => [
             'label' => 'هل هذا عميل زائر؟',
             'placeholder' => '',
         ],
-
         'number' => [
             'label' => 'رقم الطلب',
             'placeholder' => 'أدخل رقم الطلب',
@@ -61,9 +57,9 @@ return [
             'label' => 'الحالة',
             'placeholder' => 'اختر حالة الطلب',
             'options' => [
-                'all' => 'الجميع',
+                'all' => 'الكل',
                 'new' => 'جديد',
-                'processing' => 'قيد المعالجة',
+                'processing' => 'قيد التجهيز',
                 'payed' => 'مدفوع',
                 'delivered' => 'تم التوصيل',
                 'installed' => 'تم التركيب',
@@ -74,7 +70,6 @@ return [
             'label' => 'العملة',
             'placeholder' => 'اختر العملة',
         ],
-
         'paid' => [
             'label' => 'المدفوع',
             'placeholder' => '',
@@ -88,9 +83,9 @@ return [
             'placeholder' => 'أدخل أي ملاحظات إضافية',
         ],
         'items' => [
-            'label' => 'عناصر الطلب',
-            'placeholder' => 'أضف عناصر الطلب',
-            'item_label' => 'عنصر',
+            'label' => 'بنود الطلب',
+            'placeholder' => 'أضف بنود الطلب',
+            'item_label' => 'بند',
             'product' => [
                 'label' => 'المنتج',
                 'placeholder' => 'اختر المنتج',
@@ -109,19 +104,19 @@ return [
             ],
             'discount' => [
                 'label' => 'الخصم',
-                'placeholder' => 'أدخل قيمة الخصم',
+                'placeholder' => 'أدخل مبلغ الخصم',
             ],
             'total' => [
                 'label' => 'الإجمالي',
                 'placeholder' => '',
             ],
             'sub_discount' => [
-                'label' => 'خصم العنصر',
-                'placeholder' => 'أدخل خصم العنصر',
-                'hint_error' => 'لا يمكن أن يتجاوز الخصم قيمة السعر',
+                'label' => 'خصم البند',
+                'placeholder' => 'أدخل خصم البند',
+                'hint_error' => 'لا يمكن أن يتجاوز الخصم قيمة السعر.',
             ],
             'sub_total' => [
-                'label' => 'إجمالي العنصر',
+                'label' => 'إجمالي البند',
                 'placeholder' => '',
             ],
         ],
@@ -138,10 +133,9 @@ return [
             'placeholder' => '',
         ],
         'updated_at' => [
-            'label' => 'آخر تعديل',
+            'label' => 'آخر تعديل في',
             'placeholder' => '',
         ],
-
         'payment_method' => [
             'label' => 'طريقة الدفع',
             'placeholder' => 'اختر طريقة الدفع',
@@ -150,8 +144,8 @@ return [
                 'bok' => 'بنكك',
             ],
         ],
-        'amount'=>[
-            'label'=>'المبلغ'
+        'amount' => [
+            'label' => 'المبلغ'
         ]
     ],
     'actions' => [
@@ -159,7 +153,7 @@ return [
             'label' => 'إعادة تعيين',
             'modal' => [
                 'heading' => 'هل أنت متأكد؟',
-                'description' => 'سيتم حذف جميع العناصر الموجودة من الطلب.',
+                'description' => 'سيتم حذف جميع البنود الحالية من الطلب.',
             ],
         ],
         'create' => [
@@ -167,33 +161,34 @@ return [
                 'heading' => 'إنشاء طلب',
                 'submit' => 'إنشاء',
             ],
+            'notifications' => [
+                'at_least_one' => 'يجب أن يحتوي الطلب على بند واحد على الأقل.',
+                'stock' => [
+                    'title' => 'خطأ في المخزون',
+                    'message' => 'الكمية المطلوبة للمنتج `:product` غير متوفرة.',
+                ]
+            ]
         ],
         'delete' => [
-            'notification' => 'لا تكن مشاغباً، اترك بعض السجلات للآخرين للعب معها!',
+            'notification' => 'مهلاً، لا تكن لئيماً، اترك بعض السجلات ليلعب بها الآخرون!',
         ],
         'pay' => [
             'label' => 'دفع',
             'modal' => [
-                'heading' => 'معالجة الدفع',
+                'heading' => 'إتمام عملية الدفع',
             ],
             'notification' => [
-                'title' => 'تم معالجة الدفع',
-                'body' => 'تم معالجة عملية الدفع بنجاح.',
+                'title' => 'تمت عملية الدفع',
+                'body' => 'تمت معالجة الدفعة بنجاح.',
             ],
-            'empty'=>[
-                'title'=> 'اكتب المبلغ بشكل صحيح'
-            ]
         ],
-
     ],
-
     'widgets' => [
         'stats' => [
             'orders' => [
                 'label' => 'عدد الطلبات',
                 'count' => 'إجمالي الطلبات',
             ],
-
             'open_orders' => [
                 'label' => 'الطلبات المفتوحة',
                 'count' => 'عدد الطلبات المفتوحة',
@@ -204,11 +199,10 @@ return [
             ],
         ],
     ],
-    'invoice'=>[
-
-        'labels'=>[
-            'today'=> 'تاريخ اليوم',
-            'subtotal'=> 'قبل الخصم'
+    'invoice' => [
+        'labels' => [
+            'today' => 'اليوم',
+            'subtotal' => 'قبل الخصم'
         ]
     ]
 ];

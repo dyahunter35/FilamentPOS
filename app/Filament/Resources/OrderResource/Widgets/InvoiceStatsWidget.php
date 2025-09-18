@@ -1,15 +1,15 @@
 <?php
 
-namespace TomatoPHP\FilamentInvoices\Filament\Resources\InvoiceResource\Widgets;
+namespace App\Filament\Resources\OrderResource\Widgets;
 
 use Filament\Widgets\StatsOverviewWidget;
-use TomatoPHP\FilamentInvoices\Models\Invoice;
 
 class InvoiceStatsWidget extends StatsOverviewWidget
 {
     public function getStats(): array
     {
-        $query = Invoice::query();
+        return [];
+        /* $query = Invoice::query();
         return [
             StatsOverviewWidget\Stat::make(trans('filament-invoices::messages.invoices.widgets.count'), "")
                 ->icon('heroicon-o-currency-dollar')
@@ -32,6 +32,6 @@ class InvoiceStatsWidget extends StatsOverviewWidget
                         ->where('status', '!=','estimate')
                         ->get()
                 )->sum(fn($item)=>($item->total - $item->paid)), 2)),
-        ];
+        ]; */
     }
 }

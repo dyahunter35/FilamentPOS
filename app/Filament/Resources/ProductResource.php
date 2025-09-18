@@ -311,7 +311,8 @@ class ProductResource extends Resource
             'index' => Pages\ListProducts::route('/'),
             'create' => Pages\CreateProduct::route('/create'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
-            'report' => Pages\ProductStockReport::route('/{record}/report'),
+            'report' => Pages\ProductStockReport::route('/report'),
+            'branch' => Pages\BranchReport::route('/branch-report'),
         ];
     }
 }

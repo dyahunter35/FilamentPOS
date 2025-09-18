@@ -47,13 +47,13 @@ class AppServiceProvider extends ServiceProvider
 
         Resource::scopeToTenant(false);
 
-        DB::listen(function ($query) {
+        /*DB::listen(function ($query) {
             Log::info(
                 $query->sql,
                 $query->bindings,
                 $query->time
             );
-        });
+        });*/
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch

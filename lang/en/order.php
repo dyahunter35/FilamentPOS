@@ -168,6 +168,13 @@ return [
                 'heading' => 'Create Order',
                 'submit' => 'Create',
             ],
+            'notifications'=>[
+                'at_least_one'=>'Order must have at least one item.',
+                'stock'=>[
+                    'title'=>'Stock Error',
+                    'message'=> 'The requested quantity for `:product` is not available.'
+                ]
+            ]
         ],
         'delete' => [
             'notification' => 'Now, now, don\'t be cheeky, leave some records for others to play with!',

@@ -3,82 +3,119 @@
 namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\OrderResource;
-use Filament\Actions;
+use App\Models\Product;
+use App\Services\InventoryService; // <-- استيراد الخدمة
+use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Exceptions\Halt; // <-- مهم لإيقاف العملية
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB; // <-- مهم للـ transactions
 
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
 
-    // We will override this method to take full control
-   /*  protected function handleRecordCreation(array $data): Model
+    /**
+     * تم تعطيل هذه الدالة لأننا سنضع منطقها داخل handleRecordCreation
+     * @param array $data
+     * @return array
+     */
+    /* protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // الخطوة الأولى: اعرض البيانات كما هي قادمة من الفورم مباشرة
-        // هل تحتوي على 'is_guest' و 'customer_id' أو 'guest_customer'؟
-        // dd('Data from form:', $data);
+        // ... Logic moved to handleRecordCreation
+    } */
 
-        // --- إذا كانت البيانات في الخطوة الأولى تبدو صحيحة، انتقل للخطوة الثانية ---
+    /**
+     * تم تعطيل هذه الدالة لأننا سنضع منطقها داخل handleRecordCreation
+     */
+    /* public function afterCreate()
+    {
+        // ... Logic moved to handleRecordCreation
+    } */
 
-        // الخطوة الثانية: قم بتطبيق نفس المنطق الذي كان في mutateFormDataBeforeCreate
+    /**
+     * التحكم الكامل في عملية إنشاء السجل لضمان سلامة البيانات والمخزون.
+     *
+     * @param array $data
+     * @return Model
+     * @throws Halt
+     */
+    protected function handleRecordCreation(array $data): Model
+    {
+        // Get the full state of the form, including the repeater items
+        $fullData = $this->form->getState();
 
-        $data['branch_id'] = filament()->getTenant()->id;
-        if (isset($data['is_guest'])) {
-            if ($data['is_guest'] === false) {
-                $data['guest_customer'] = null;
-            } else {
-                $data['customer_id'] = null;
+        //dd($fullData);
+        // Now you can access the items
+        $orderItemsData = $fullData['items'] ?? [];
+
+        $inventoryService = new InventoryService();
+        $currentBranch = Filament::getTenant();
+        $currentUser = auth()->user();
+
+        // Start a transaction for the entire operation
+        return DB::transaction(function () use ($inventoryService, $currentBranch, $currentUser, $data, $orderItemsData) {
+
+            // --- 1. Stock Availability Check ---
+            if (empty($orderItemsData)) {
+                Notification::make()->title(__('order.actions.create.notifications.at_least_one'))->warning()->send();
+                throw new Halt();
             }
-            unset($data['is_guest']);
-        }
 
-        // اعرض البيانات بعد تعديلها وقبل حفظها
-        //dd('Data before saving:', $data);
+            foreach ($orderItemsData as $item) {
+                $product = Product::find($item['product_id']);
+                if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $item['qty'])) {
+                    Notification::make()
+                        ->title(__('order.actions.create.notifications.stock.title'))
+                        ->body(__('order.actions.create.notifications.stock.message', ['product' => $product->name]))
+                        ->danger()
+                        ->send();
 
-        // --- إذا كانت البيانات في الخطوة الثانية تبدو صحيحة، انتقل للخطوة الثالثة ---
+                    throw new Halt();
+                }
+            }
 
-        // الخطوة الثالثة: حاول إنشاء السجل في قاعدة البيانات
-        $record = static::getModel()::create($data);
+            // --- 2. Prepare Main Order Data ---
+            // (The guest customer logic from your mutateFormDataBeforeCreate is here)
+            if (isset($data['is_guest'])) {
+                if ($data['is_guest'] === false) {
+                    $data['guest_customer'] = null;
+                } else {
+                    $data['customer_id'] = null;
+                }
+                unset($data['is_guest']);
+            }
+            $data['caused_by'] = $currentUser->id;
+            $data['branch_id'] = $currentBranch->id;
 
-        // اعرض السجل بعد محاولة الحفظ. هل حصل على ID؟
-        dd('Record after create attempt:', $record->refresh());
+            // --- 3. Create the Main Order ---
+            $order = static::getModel()::create($data);
 
-        return $record;
-    }
- */
-     protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        //dd($data);
-        $data['caused_by'] = auth()->id();
-        // If the order is for a registered customer...
-        if ($data['is_guest'] === false) {
-            // ...ensure the guest_customer field is null.
-            $data['guest_customer'] = null;
-        } else {
-            // Otherwise, if it's a guest, ensure customer_id is null.
-            $data['customer_id'] = null;
-        }
+            // --- 4. Create Order Items and Deduct Stock ---
+            foreach ($orderItemsData as $itemData) {
+                // Create the order item record and associate it with the order
+                $order->items()->create($itemData);
 
-        // Remove our virtual 'is_guest' field so Filament doesn't try to save it.
-        unset($data['is_guest']);
+                // Deduct the stock
+                $productToDeduct = Product::find($itemData['product_id']);
+                $inventoryService->deductStockForBranch(
+                    $productToDeduct,
+                    $currentBranch,
+                    $itemData['qty'],
+                    "Order #{$order->number}",
+                    $currentUser
+                );
+            }
 
-        return $data; // TODO: Change the autogenerated stub
-    }
+            $inventoryService->updateAllBranches();
+            // You can add your order log creation here if you wish
+            $order->orderLogs()->create([
+                'log' => "Invoice created By: " . $currentUser->name,
+                'type' => 'created'
+            ]);
 
-    public function afterCreate()
-    {
-        //$data = [];
-        /* $data['discount'] = collect($this->getRecord()->items)->sum(function ($item) {
-            return $item->discount * $item->qty;
-        }); */
-
-        //$data['total'] = collect($this->getRecord()->items)->sum('sub_total');
-
-        //$this->getRecord()->update($data);
-
-        $this->getRecord()->orderLogs()->create([
-            'log' => "Invoice created By: " . auth()->user()->name,
-            'type' => 'created'
-        ]);
+            return $order;
+        });
     }
 }

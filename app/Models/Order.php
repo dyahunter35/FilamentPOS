@@ -29,6 +29,7 @@ class Order extends Model
         'notes',
         'guest_customer',
         'caused_by',
+        'branch_id',
         'created_at',
         'updated_at'
     ];

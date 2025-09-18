@@ -1,91 +1,92 @@
 <x-filament-panels::page>
-    {{-- زر الطباعة الذي يختفي عند الطباعة --}}
-    <div class="text-right print:hidden">
-        <x-filament::button icon="heroicon-o-printer" tag="button" onclick="window.print()">
-            طباعة التقرير
-        </x-filament::button>
-    </div>
 
-    {{-- حاوية التقرير الرئيسية --}}
-    <div id="report-content" class="p-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
-        {{-- 1. رأس التقرير --}}
-        <header class="flex items-center justify-between pb-6 border-b-2 border-gray-200 dark:border-gray-700">
-            {{-- الشعار والعنوان --}}
-            <div>
-                <img src="{{ asset('images/your-logo.png') }}" alt="Company Logo" class="h-12 mb-2">
-                <h1 class="text-2xl font-bold text-gray-800 dark:text-white">
-                    تقرير مخزون المنتجات
-                </h1>
+    <div class="text-gray-800">
+
+        <!-- Main Container -->
+        <main class="w-full max-w-5xl mx-auto p-4 sm:p-6 md:p-8 m-4" id="report-content">
+
+            <!-- Report Card -->
+            <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+
+                <!-- Header Section -->
+                <header class="border-b border-gray-200 p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">تقرير المنتجات </h1>
+                            <p class="text-sm text-gray-500 mt-1">سجل المنتجات لكل الفروع</p>
+                        </div>
+                        <div class="text-sm text-gray-600 mt-4 sm:mt-0 text-left sm:text-right">
+                            <p class="font-semibold">تاريخ التقرير:</p>
+                            <p>{{ now()->format('Y-m-d') }}</p>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Table Container for Responsiveness -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-right text-gray-600">
+                        <!-- Table Head -->
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold">المنتج</th>
+                                @foreach ($branches as $branch)
+                                    <th scope="col" class="px-6 py-4 font-semibold text-center">{{ $branch->name }}
+                                    </th>
+                                @endforeach
+                                <th scope="col" class="px-6 py-4 font-semibold text-center">المجموع الكلي</th>
+                            </tr>
+                        </thead>
+
+                        <!-- Table Body -->
+                        <tbody>
+                            @forelse ($products as $product)
+
+                                <tr
+                                    class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                                        {{ $product->name }}
+                                    </td>
+                                    @foreach ($branches as $branch)
+                                        @php
+                                            // البحث عن بيانات الفرع المحدد داخل علاقة المنتج بالفروع
+                                            $branchPivot = $product->branches->firstWhere('id', $branch->id);
+                                            // جلب الكمية من حقل الـ pivot أو عرض 0 إذا لم يكن المنتج مرتبطاً بالفرع
+                                            $quantityInBranch = $branchPivot?->pivot->total_quantity ?? 0;
+                                        @endphp
+                                        <td class="px-6 py-4 text-center">
+                                            {{ $quantityInBranch }}
+                                        </td>
+                                    @endforeach
+                                    <td class="px-6 py-4 text-center font-semibold text-gray-900">{{ number_format($product->totalStock ?? 0) }}</td>
+                                    {{-- <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            أداء مرتفع
+                                        </span>
+                                    </td> --}}
+                                </tr>
+                                @endforeach
+                        </tbody>
+
+                        <!-- Table Footer -->
+                        {{-- <tfoot class="bg-gray-50">
+                            <tr class="font-semibold text-gray-900">
+                                <td class="px-6 py-4 text-base">الإجمالي</td>
+                                <td class="px-6 py-4 text-center">5,920</td>
+                                <td class="px-6 py-4 text-center">--</td>
+                                <td class="px-6 py-4 text-center text-base">$2,117,780</td>
+                                <td class="px-6 py-4 text-center">--</td>
+                            </tr>
+                        </tfoot> --}}
+                    </table>
+                </div>
+
             </div>
-            {{-- التاريخ --}}
-            <div class="text-right text-gray-600 dark:text-gray-300">
-                <p class="font-semibold">تاريخ التقرير:</p>
-                <p>{{ now()->format('Y-m-d') }}</p>
-            </div>
-        </header>
 
-        {{-- 2. جدول البيانات --}}
-        <tr class="border-b border-slate-700 hover:bg-slate-700/50">
-            <td class="p-4 font-medium text-slate-300 whitespace-nowrap">المنتج</td>
-            @foreach ($branches as $branch)
-                <td class="p-4 text-center text-slate-400">{{ $branch->name }}</td>
-            @endforeach
-
-            <td class="p-4 text-center font-bold text-sky-400">total</td>
-        </tr>
-        <main class="mt-8">
-            <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">المنتج</th>
-                        {{-- إنشاء عمود لكل فرع بشكل ديناميكي --}}
-                        @foreach ($branches as $branch)
-                            <th scope="col" class="px-6 py-3 text-center">{{ $branch->name }}</th>
-                        @endforeach
-                        <th scope="col" class="px-6 py-3 text-center bg-gray-100 dark:bg-gray-600">الكمية الإجمالية
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($products as $product)
-                        <tr
-                            class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                            {{-- اسم المنتج --}}
-                            <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                {{ $product->name }}
-                            </td>
-
-                            {{-- عرض كمية المنتج في كل فرع --}}
-                            @foreach ($branches as $branch)
-                                @php
-                                    // البحث عن بيانات الفرع المحدد داخل علاقة المنتج بالفروع
-                                    $branchPivot = $product->branches->firstWhere('id', $branch->id);
-                                    // جلب الكمية من حقل الـ pivot أو عرض 0 إذا لم يكن المنتج مرتبطاً بالفرع
-                                    $quantityInBranch = $branchPivot?->pivot->total_quantity ?? 0;
-                                @endphp
-                                <td class="px-6 py-4 text-center">
-                                    {{ $quantityInBranch }}
-                                </td>
-                            @endforeach
-
-                            {{-- عرض الكمية الإجمالية (المحسوبة مسبقاً بـ withSum) --}}
-                            <td class="px-6 py-4 text-center font-bold bg-gray-100 dark:bg-gray-600">
-                                {{ $product->totalStock ?? 0 }}
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="{{ 2 + $branches->count() }}" class="p-4 text-center">
-                                لا توجد منتجات لعرضها.
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
         </main>
+
     </div>
 
-    {{-- تنسيقات خاصة بالطباعة --}}
     <style>
         @media print {
             body * {

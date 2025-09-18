@@ -456,11 +456,10 @@ class OrderResource extends Resource
 
             Forms\Components\Repeater::make('items')
                 ->hiddenLabel()
-                ->collapsible()
                 ->orderColumn()
                 //->collapsed(fn($record) => $record)
                 ->cloneable()
-                ->relationship('items')
+               // ->relationship('items')
                 ->label(__('order.fields.items.label'))
                 ->itemLabel(__('order.fields.items.item_label'))
                 ->schema([
@@ -468,7 +467,7 @@ class OrderResource extends Resource
                         ->label(__('order.fields.items.product.label'))
                         ->placeholder(__('order.fields.items.product.placeholder'))
                         ->options(
-                            Product::whereHas('branch', function ($query) {
+                            Product::whereHas('branches', function ($query) {
                                 $query->where('branches.id', Filament::getTenant()->id);
                             })->get()->mapWithKeys(function (Product $product) {
                                 return [$product->id => sprintf('%s - %s ($%s)', $product->name, $product->category?->name, $product->price)];
@@ -565,7 +564,8 @@ class OrderResource extends Resource
                         ->label(__('order.fields.notes.label'))
                         ->placeholder(__('order.fields.notes.placeholder'))
                         ->columnSpanFull(),
-                ])->columns(4)->collapsible(),
+                ])->columns(4)
+                ->collapsible(),
         ];
     }
 

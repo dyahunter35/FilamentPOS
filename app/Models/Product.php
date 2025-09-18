@@ -24,7 +24,6 @@ class Product extends Model implements HasMedia
     protected static function booted(): void
     {
         static::addGlobalScope(new IsVisibleScope());
-
     }
 
     /** @return BelonngsTo<Category> */
@@ -80,7 +79,21 @@ class Product extends Model implements HasMedia
     public function totalStock(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->branches()->sum('total_quantity'),
+            get: fn() => $this->branches()->sum('total_quantity'),
         );
+    }
+
+    public function latestStockChange(): Attribute
+    {
+        return Attribute::make(
+            // The 'history' relationship already orders by the latest,
+            // so we just need to get the first record.
+            get: fn() => $this->history()->first(),
+        );
+    }
+
+    public function currentBranch()
+    {
+        return $this->branches()->where('branch_id',Filament::getTenant()->id)->first();
     }
 }

@@ -150,6 +150,18 @@ return [
         ],
     ],
     'actions' => [
+        'report'=>[
+            'label'=>'Branches Quantity Report'
+        ],
+        'branch_report'=>[
+            'label'=>'Branch Report'
+        ],
+        'print'=>[
+            'label' => 'Print Report',
+        ],
+        'refresh'=>[
+            'label' => 'Refresh Quantity',
+        ],
         'delete' => [
             'notification' => 'Now, now, don\'t be cheeky, leave some records for others to play with!',
         ],
