@@ -57,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
-                ->locales(['ar', 'en'])
+                ->locales(['ar'])
                 ->outsidePanelRoutes([
                     'login',
                     'home',

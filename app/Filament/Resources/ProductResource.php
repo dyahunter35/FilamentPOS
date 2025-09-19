@@ -236,16 +236,17 @@ class ProductResource extends Resource
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('total_stock')
-                    ->label(__('product.columns.quantity.label'))
+                    ->label(__('product.columns.all_branches_quantity.label'))
                     ->searchable()
                     ->sortable()
                     ->visible(fn() => auth()->user()->hasRole('super_admin'))
                     ->toggleable(),
 
-                Tables\Columns\TextColumn::make('branch.name')
+                Tables\Columns\TextColumn::make('branches.name')
                     ->label(__('product.columns.branch.label'))
                     ->searchable()
                     ->badge()
+                    ->visible(fn() => auth()->user()->hasRole('super_admin'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('security_stock')

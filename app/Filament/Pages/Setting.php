@@ -14,11 +14,11 @@ class Setting extends SettingsPage
 
     protected static string $settings = GeneralSettings::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                // ...
-            ]);
+            ->schema([]);
     }
 }

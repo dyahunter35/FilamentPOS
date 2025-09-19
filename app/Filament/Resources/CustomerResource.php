@@ -47,44 +47,37 @@ class CustomerResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make()
-                ->schema([
+                    ->schema([
 
 
-                Forms\Components\TextInput::make('name')
-                    ->label(__('customer.fields.name.label'))
-                    ->placeholder(__('customer.fields.name.placeholder'))
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->label(__('customer.fields.email.label'))
-                    ->placeholder(__('customer.fields.email.placeholder'))
-                    ->email()
-                    ->required()
-                    ->maxLength(255),
+                        Forms\Components\TextInput::make('name')
+                            ->label(__('customer.fields.name.label'))
+                            ->placeholder(__('customer.fields.name.placeholder'))
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('email')
+                            ->label(__('customer.fields.email.label'))
+                            ->placeholder(__('customer.fields.email.placeholder'))
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
 
-                Forms\Components\TextInput::make('phone')
-                    ->label(__('customer.fields.phone.label'))
-                    ->placeholder(__('customer.fields.phone.placeholder'))
-                    ->tel()
-                    ->maxLength(255)
-                    ->default(null),
-                Forms\Components\Select::make('gender')
-                    ->label(__('customer.fields.gender.label'))
-                    ->placeholder(__('customer.fields.gender.placeholder'))
-                    ->options([
-                        'male' => 'Male',
-                        'female' => 'Female',
-                    ])
-                    ->required(),
-                ])->columnSpan(2)
-                ->columns(2),
-                    Forms\Components\Section::make()
-                ->schema([
-                Forms\Components\SpatieMediaLibraryFileUpload::make('photo')
-                    ->label(__('customer.fields.photo.label'))
-                    ->placeholder(__('customer.fields.photo.placeholder'))
-                    ->collection('customer_photos'),
-                ])->columnSpan(1),
+                        Forms\Components\TextInput::make('phone')
+                            ->label(__('customer.fields.phone.label'))
+                            ->placeholder(__('customer.fields.phone.placeholder'))
+                            ->tel()
+                            ->maxLength(255)
+                            ->default(null),
+
+                    ])->columnSpan(2)
+                    ->columns(2),
+                Forms\Components\Section::make()
+                    ->schema([
+                        Forms\Components\SpatieMediaLibraryFileUpload::make('photo')
+                            ->label(__('customer.fields.photo.label'))
+                            ->placeholder(__('customer.fields.photo.placeholder'))
+                            ->collection('customer_photos'),
+                    ])->columnSpan(1),
 
             ])->columns(3);
     }
@@ -94,22 +87,25 @@ class CustomerResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('photo')
-                    ->collection('customer_photos'),
-                    
+                    ->collection('customer_photos')
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('customer.fields.name.label'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->label(__('customer.fields.email.label'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('gender'),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label(__('customer.fields.phone.label'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('user.fields.created_at.label'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label(__('user.fields.updated_at.label'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

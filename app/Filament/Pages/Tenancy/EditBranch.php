@@ -5,6 +5,7 @@ namespace App\Filament\Pages\Tenancy;
 use App\Models\Branch;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
@@ -27,18 +28,25 @@ class EditBranch extends EditTenantProfile
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->afterStateUpdated(function ($state, $set) {
-                        $set('slug', Str::slug($state));
-                    })->live(onBlur: true),
-                TextInput::make('slug')
-                    ->dehydrated(),
-                Select::make('users')
-                    ->relationship('users', 'name')
-                    ->multiple()
-                    ->preload(),
+                Section::make()->schema([
+
+                    TextInput::make('name')
+                        ->afterStateUpdated(function ($state, $set) {
+                            $set('slug', Str::slug($state));
+                        })->live(onBlur: true),
+
+                    TextInput::make('slug')
+                        ->dehydrated()
+                        ->readOnly(),
+
+                    Select::make('users')
+                        ->relationship('users', 'name')
+                        ->multiple()
+                        ->preload(),
+                ])->columnSpan(1)
             ])
-            ->columns(2);
+            ->columns(2)
+        ;
     }
 
     protected function handleRecordUpdate(Model $record, array $data): Model
@@ -48,9 +56,13 @@ class EditBranch extends EditTenantProfile
 
         return $record;
     }
+    
     protected function getRedirectUrl(): ?string
     {
-        return route(Filament::getRedirectUrl());
+        // ** The New Redirect Logic **
+        // Now we use the updated `$this->record` property to build the URL with the new slug.
+        // `getRouteKey()` will correctly return the new slug.
+        return $this->getResource()::getUrl('edit', ['record' => Filament::getTenant()->getRouteKey()]);
     }
 
     protected function getRecord(): Model
@@ -64,6 +76,6 @@ class EditBranch extends EditTenantProfile
         $user = Auth::user();
 
         // Return true only if the user's email matches the specific email
-        return $user && $user->email === 'admin@example.com';
+        return true; //$user && $user->email === 'admin@example.com';
     }
 }

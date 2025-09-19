@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Components\Tab;
@@ -33,9 +34,12 @@ class ListOrders extends ListRecords
     {
         $tabs = [
             null => Tab::make('All')
-            ->label(__('order.fields.status.options.all'))
-            ->icon('heroicon-o-rectangle-stack') // Default icon for "All" tab
-            ,
+                ->label(__('order.fields.status.options.all'))
+                ->icon('heroicon-o-rectangle-stack') // Default icon for "All" tab
+                ->modifyQueryUsing(function (Builder $query) {
+                    // Filter the query based on the status
+                    $query->where('branch_id', Filament::getTenant()->id);
+                }),
         ];
 
         // Loop through each case in the ProductStatus Enum
@@ -47,7 +51,7 @@ class ListOrders extends ListRecords
                     // Filter the query based on the status
                     $query->where('status', $status);
                 })
-                ->badge(Order::query()->where('status', $status)->count()) // Optional: Add a count badge
+                ->badge(Order::query()->where('status', $status)->where('branch_id', Filament::getTenant()->id)->count()) // Optional: Add a count badge
                 ->badgeColor($status->getColor()); // Use a method to get the badge color
         }
 

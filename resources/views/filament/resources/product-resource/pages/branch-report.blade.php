@@ -7,7 +7,7 @@
       <div class="text-gray-800">
 
           <!-- Main Container -->
-          <main class="w-full max-w-5xl mx-auto p-4 sm:p-6 md:p-8 m-4" id="report-content">
+          <main class="w-full  mx-auto p-4 sm:p-6 md:p-8 m-4" id="report-content">
 
               <!-- Report Card -->
               <div class="bg-white shadow-lg rounded-xl overflow-hidden">

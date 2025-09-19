@@ -8,6 +8,7 @@ use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use App\Filament\Pages\Dashboard\Widgets\ExpiringDocumentsWidget;
 use App\Filament\Pages\Dashboard\Widgets\VendorDistributionChart;
 use App\Filament\Pages\Dashboard\Widgets\MonthlyVendorTrendsChart;
+use App\Filament\Resources\OrderResource\Widgets;
 
 class MainDashboard extends BaseDashboard
 {
@@ -32,15 +33,20 @@ class MainDashboard extends BaseDashboard
         return __('dashboard.subheading');
     }
 
+
+
+    // هنا نقوم بربط الويدجت بالصفحة
     protected function getHeaderWidgets(): array
     {
         return [
-            StatsWidget::class,
-            //MonthlyVendorTrendsChart::class,
-            //VendorDistributionChart::class,
+            //StatsWidget::class,
+
+            Widgets\SalesStats::class,
+            Widgets\SalesChart::class,
+            Widgets\Chart::class,
+            Widgets\LatestOrders::class,
         ];
     }
-
     protected function getFooterWidgets(): array
     {
         return [

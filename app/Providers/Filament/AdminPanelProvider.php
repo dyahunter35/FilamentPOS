@@ -6,6 +6,7 @@ use App\Filament\Pages\Dashboard\MainDashboard;
 use App\Filament\Pages\Tenancy\EditBranch;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
 use App\Filament\Pages\Tenancy\RegisterBranch;
+use App\Filament\Resources\OrderResource\Pages\SalesReport;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Models\Branch;
 use Filament\Facades\Filament;
@@ -88,13 +89,12 @@ class AdminPanelProvider extends PanelProvider
                     ->tenantRegistration(RegisterBranch::class)
                     ->tenantProfile(EditBranch::class)
             )
-            ->colors([
-                'primary' => Color::Amber,
-            ])
+
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 MainDashboard::class,
+                SalesReport::class
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

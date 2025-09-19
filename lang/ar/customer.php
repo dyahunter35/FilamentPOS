@@ -25,14 +25,7 @@ return [
             'label' => 'رقم الهاتف',
             'placeholder' => 'أدخل رقم الهاتف',
         ],
-        'gender' => [
-            'label' => 'النوع',
-            'placeholder' => 'اختر النوع',
-            'options' => [
-                'male' => 'ذكر',
-                'female' => 'أنثى',
-            ],
-        ],
+        
         'photo' => [
             'label' => 'الصورة',
             'placeholder' => 'رفع صورة العميل',

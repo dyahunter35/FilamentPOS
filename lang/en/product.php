@@ -117,11 +117,15 @@ return [
             'label' => 'SKU',
         ],
         'quantity' => [
-            'label' => 'Quantity',
+            'label' => 'This Branch',
 
         ],
+         'all_branches_quantity' => [
+            'label' => 'All Branches',
+        ],
+
         'branch' => [
-            'label' => 'Branch',
+            'label' => 'Branches',
         ],
         'security_stock' => [
             'label' => 'Security Stock',

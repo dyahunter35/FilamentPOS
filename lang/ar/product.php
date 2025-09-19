@@ -117,10 +117,15 @@ return [
             'label' => 'SKU',
         ],
         'quantity' => [
-            'label' => 'الكمية',
+            'label' => 'هذا الفرع',
+
         ],
+         'all_branches_quantity' => [
+            'label' => 'كل الفروع',
+        ],
+
         'branch' => [
-            'label' => 'الفرع',
+            'label' => 'الفروع',
         ],
         'security_stock' => [
             'label' => 'مخزون الأمان',

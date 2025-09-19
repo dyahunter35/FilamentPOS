@@ -32,6 +32,10 @@ return [
             'label' => 'Password',
             'placeholder' => 'Enter password',
         ],
+        'phone' => [
+            'label' => 'Phone',
+            'placeholder' => 'Enter Phone',
+        ],
         'roles' => [
             'label' => 'Roles',
             'placeholder' => 'Select user roles',
