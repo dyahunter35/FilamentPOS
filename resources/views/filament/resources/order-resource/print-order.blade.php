@@ -281,7 +281,7 @@
                                     {{ trans('order.invoice.labels.subtotal') }}
                                 </div>
                                 <div>
-                                    {{ number_format($this->getRecord()->total + $this->getRecord()->discount - ( $this->getRecord()->shipping), 2) }}
+                                    {{ number_format($this->getRecord()->total + $this->getRecord()->discount - $this->getRecord()->shipping, 2) }}
                                     <small class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
@@ -349,66 +349,69 @@
                 </div>
             </div>
         </x-filament::section>
-        <x-filament::section>
+        @if ($this->getRecord()->orderMetas()->count() > 0)
+            <x-filament::section>
 
 
-            <!-- Header Section -->
-            <header class="border-b border-gray-200 p-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                    <div>
-                        <h1 class="text-l font-bold text-gray-900">المدفوعات</h1>
+                <!-- Header Section -->
+                <header class="border-b border-gray-200 ">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div>
+                            <h1 class="text-l font-bold text-gray-900 p-3">المدفوعات</h1>
+                        </div>
+
                     </div>
+                </header>
 
-                </div>
-            </header>
+                <!-- Table Container for Responsiveness -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-right text-gray-600">
+                        <!-- Table Head -->
+                        <thead class="text-l text-gray-700 uppercase bg-white border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-semibold text-center">التاريخ</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-center">
+                                    المبلغ
+                                </th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-center">
+                                    طريقة الدفع
+                                </th>
+                            </tr>
+                        </thead>
 
-            <!-- Table Container for Responsiveness -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-right text-gray-600">
-                    <!-- Table Head -->
-                    <thead class="text-l text-gray-700 uppercase bg-white border-b border-gray-200">
-                        <tr>
-                            <th scope="col" class="px-6 py-4 font-semibold text-center">التاريخ</th>
-                            <th scope="col" class="px-6 py-4 font-semibold text-center">
-                                المبلغ
-                            </th>
-                            <th scope="col" class="px-6 py-4 font-semibold text-center">
-                                طريقة الدفع
-                            </th>
-                        </tr>
-                    </thead>
+                        <!-- Table Body -->
+                        <tbody>
+                            @forelse ($this->getRecord()->orderMetas()->latest()->get() as $meta)
 
-                    <!-- Table Body -->
-                    <tbody>
-                        @forelse ($this->getRecord()->orderMetas()->latest()->get() as $meta)
+                                <tr
+                                    class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap  text-center">
+                                        {{ $meta->created_at->toDateString() }}
+                                    </td>
 
-                            <tr
-                                class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
-                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap  text-center">
-                                    {{ $meta->created_at->toDateString() }}
-                                </td>
+                                    <td class="px-6 py-4 text-center">
+                                        {{ number_format($meta->value, 2) }} <small
+                                            class="text-md font-normal">SDG</small>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        {{ \App\Enums\Payment::tryFrom($meta->group)->getLabel() }}
+                                    </td>
 
-                                <td class="px-6 py-4 text-center">
-                                    {{ number_format($meta->value, 2) }} <small class="text-md font-normal">SDG</small>
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    {{ \App\Enums\Payment::tryFrom($meta->group)->getLabel() }}
-                                </td>
-
-                                {{-- <td class="px-6 py-4 text-center">
+                                    {{-- <td class="px-6 py-4 text-center">
                                         <span
                                             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                             أداء مرتفع
                                         </span>
                                     </td> --
                                     </tr> --}}
-                        @endforeach
-                    </tbody>
+                            @endforeach
+                        </tbody>
 
 
-                </table>
-            </div>
-        </x-filament::section>
+                    </table>
+                </div>
+            </x-filament::section>
+        @endif
 
         {{-- <div class="no-print">
             @php

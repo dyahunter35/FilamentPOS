@@ -87,7 +87,7 @@ class OrderResource extends Resource
                                 static::getItemsRepeater(),
                             ),
                     ])
-                    ->columnSpan(['lg' => fn(?Order $record) => $record === null ? 3 : 2]),
+                    ->columnSpan(['lg' =>  2]),
 
                 Forms\Components\Section::make()
                     ->schema([
@@ -246,7 +246,7 @@ class OrderResource extends Resource
                         Forms\Components\TextInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
-                            ->live(onBlur:true)
+                            ->live(onBlur: true)
                             ->hint(fn($state) => number_format($state))
                             ->hintColor('info')
                             ->numeric(),
@@ -478,16 +478,29 @@ class OrderResource extends Resource
                         ->label(__('order.fields.items.product.label'))
                         ->placeholder(__('order.fields.items.product.placeholder'))
                         ->options(
+
                             Product::whereHas('branches', function ($query) {
+
                                 $query->where('branches.id', Filament::getTenant()->id);
-                            })->pluck('name', 'id')
+                            })->get()->mapWithKeys(function (Product $product) {
+
+                                return [$product->id =>
+                                sprintf(
+                                    '%s - %s ($%s) [%s]',
+                                    $product->name,
+                                    $product->category?->name,
+                                    $product->price,
+                                    $product->stock_for_current_branch
+                                )];
+                            })
                         )
                         ->required()
-                        ->reactive()
+                        ->live(onBlur: true)
                         ->afterStateUpdated(function ($state, Forms\Set $set) {
                             $product = Product::find($state);
                             $set('price', $product?->price ?? 0);
                             $set('description', $product?->description ?? '');
+                            $set('stock', $product?->stock_for_current_branch ?? 0);
                         })
                         ->distinct()
                         ->disableOptionsWhenSelectedInSiblingRepeaterItems()
@@ -507,13 +520,17 @@ class OrderResource extends Resource
                         ->default(0)
                         ->live(onBlur: true)
                         ->numeric(),
+
                     Forms\Components\TextInput::make('qty')
                         ->live(onBlur: true)
                         ->columnSpan(3)
                         ->label(__('order.fields.items.qty.label'))
                         ->placeholder(__('order.fields.items.qty.placeholder'))
+                        ->hint(fn(Forms\Get $get) => ($get('stock') ?? 0))
+                        ->hintColor('info')
                         ->default(1)
                         ->numeric(),
+
                     Forms\Components\TextInput::make('sub_discount')
                         ->label(__('order.fields.items.sub_discount.label'))
                         ->placeholder(__('order.fields.items.sub_discount.placeholder'))

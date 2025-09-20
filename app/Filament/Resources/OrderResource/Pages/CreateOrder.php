@@ -45,7 +45,8 @@ class CreateOrder extends CreateRecord
                         ->body(__('order.actions.create.notifications.stock.message', ['product' => $product->name]))
                         ->danger()
                         ->send();
-                    throw new \Exception("Stock not available for {$product->name}.");
+                    //throw new \Exception("Stock not available for {$product->name}.");
+                    return;
                 }
 
                 // Deduct the stock

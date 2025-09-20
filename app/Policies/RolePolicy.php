@@ -15,7 +15,7 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_role');
+        return $user->can('view_any_role') && $user->email == 'dyahunter35@gmail.com';
     }
 
     /**
@@ -23,7 +23,7 @@ class RolePolicy
      */
     public function view(User $user, Role $role): bool
     {
-        return $user->can('view_role');
+        return $user->can('view_role') && $user->email == 'dyahunter35@gmail.com';
     }
 
     /**

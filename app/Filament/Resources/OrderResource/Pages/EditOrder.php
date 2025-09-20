@@ -42,9 +42,6 @@ class EditOrder extends EditRecord
             $data['customer_id'] = null;
         }
 
-        // We don't need the is_guest flag in the database
-        unset($data['is_guest']);
-
         return $data;
     }
 
