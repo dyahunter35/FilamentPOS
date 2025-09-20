@@ -136,6 +136,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label(__('order.fields.customer.label'))
                     ->searchable()
+                    ->updateStatusUsing(fn($state,$record) => ($record->is_guest)  ? $state . '  '.__('customer.guest_suffix'): $state)
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status')

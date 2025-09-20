@@ -39,8 +39,8 @@ class AdminPanelProvider extends PanelProvider
             ->font('Poppins')
             ->databaseTransactions()
             ->databaseNotifications()
-            ->brandName('Mohamed Co')
-            ->colors([
+            ->brandName(config('app.name'))
+            /* ->colors([
                 'primary' => [
                     'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق
                     50 => "#F7F6F8",
@@ -73,7 +73,7 @@ class AdminPanelProvider extends PanelProvider
                 "brand-primary-gray" => "#B4B4B8",
                 "brand-secondary-dark" => "#352F44",
                 "brand-secondary-light" => "#817F8A",
-            ])
+            ]) */
             // ->viteTheme('resources/css/filament/site/theme.css')
 
             //->favicon(asset('images/favicon.ico'))

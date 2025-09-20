@@ -18,7 +18,7 @@ class GuestCustomer implements CastsAttributes
         }
         // Decode the JSON and create a new, non-persisted Customer model
         $data = json_decode($value, true);
-        $data['name'] = $data['name'] . '  '.__('customer.guest_suffix');
+        $data['name'] = $data['name'] ;
         return new Customer($data);
     }
 
