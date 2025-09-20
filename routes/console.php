@@ -10,4 +10,5 @@ Artisan::command('inspire', function () {
 
 
 // --- أضف جدولة الأوامر الخاصة بك هنا ---
-Schedule::command('stock:check-levels')->hourly();
+Schedule::command('stock:check-levels')->everyMinute();
+Schedule::command('queue:work --stop-when-empty')->everyMinute();
