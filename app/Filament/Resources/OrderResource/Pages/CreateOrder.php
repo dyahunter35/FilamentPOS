@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderResource\Pages;
 
 use App\Filament\Resources\OrderResource;
+use App\Models\Order;
 use App\Models\Product;
 use App\Services\InventoryService; // <-- استيراد الخدمة
 use Filament\Facades\Filament;
@@ -84,8 +85,8 @@ class CreateOrder extends CreateRecord
                 } else {
                     $data['customer_id'] = null;
                 }
-                unset($data['is_guest']);
             }
+            $data['number'] = Order::generateInvoiceNumber();
             $data['caused_by'] = $currentUser->id;
             $data['branch_id'] = $currentBranch->id;
 

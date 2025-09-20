@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
 
 class OrderResource extends Resource
@@ -95,6 +96,7 @@ class OrderResource extends Resource
                             ->label(__('order.fields.status.label'))
                             ->inline()
                             ->options(OrderStatus::class)
+                            ->default(OrderStatus::New)
                             ->required(),
 
                         Forms\Components\Select::make('currency')
@@ -171,7 +173,8 @@ class OrderResource extends Resource
                     ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(auth()->user()->can('restore_order')),
 
                 Tables\Filters\Filter::make('created_at')
                     ->form([
@@ -207,6 +210,10 @@ class OrderResource extends Resource
                 Tables\Actions\Action::make('pay')
                     ->visible(fn($record) => ($record->total != $record->paid) || $record->status === OrderStatus::Processing || $record->status === OrderStatus::New)
                     ->requiresConfirmation()
+                    ->icon('heroicon-o-credit-card')
+                    ->label(__('order.actions.pay.label'))
+                    ->modalHeading(__('order.actions.pay.modal.heading'))
+                    ->tooltip(__('order.actions.pay.label'))
                     ->iconButton()
                     ->color('info')
                     ->fillForm(fn($record) => [
@@ -218,10 +225,14 @@ class OrderResource extends Resource
                         Forms\Components\TextInput::make('total')
                             ->label(__('order.fields.total.label'))
                             ->numeric()
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
                             ->disabled(),
                         Forms\Components\TextInput::make('paid')
                             ->label(__('order.fields.paid.label'))
                             ->numeric()
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
                             ->disabled(),
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
@@ -235,11 +246,15 @@ class OrderResource extends Resource
                         Forms\Components\TextInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
+                            ->live(onBlur:true)
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
                             ->numeric(),
                     ])
                     ->action(function (array $data, Order $record) {
-                        if ($data['amount'] <= 0) {
-                            Notification::make()->send();
+
+                        if ($data['amount'] > $record->total - $record->paid || $data['amount'] <= 0) {
+                            Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
                             return;
                         }
                         $record->update([
@@ -268,23 +283,38 @@ class OrderResource extends Resource
                             ->body(__('order.actions.pay.notification.body'))
                             ->success()
                             ->send();
-                    })
-                    ->icon('heroicon-o-credit-card')
-                    ->label(__('order.actions.pay.label'))
-                    ->modalHeading(__('order.actions.pay.modal.heading'))
-                    ->tooltip(__('order.actions.pay.label')),
+                    }),
 
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->visible(fn($record) => !$record->deleted_at),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn($record) => !$record->deleted_at),
+
+                Tables\Actions\RestoreAction::make()
+                    ->requiresConfirmation() // <-- مهم جدًا: يطلب تأكيدًا قبل التنفيذ
+                    ->visible(fn($record) => $record->deleted_at && auth()->user()->can('restore_order')),
+
+                Tables\Actions\Action::make('forceDeleteItem')
+                    ->label('حذف نهائي')
+                    ->requiresConfirmation() // <-- مهم جدًا: يطلب تأكيدًا قبل التنفيذ
+                    ->action(fn(Model $record) => $record->forceDelete())
+                    ->color('danger') // <-- يجعل لون الزر أحمر للتحذير
+                    ->icon('heroicon-o-trash') // <-- أيقونة سلة المهملات
+                    ->visible(fn($record) => $record->deleted_at && auth()->user()->can('force_delete_order')),
+
             ])->defaultSort('created_at', 'desc')
             ->groupedBulkActions([
+                Tables\Actions\BulkAction::make('forceDelete')
+                    ->label('حذف نهائي للمحدد')
+                    ->requiresConfirmation() // <-- مهم جدًا: يطلب تأكيدًا قبل التنفيذ
+                    ->action(fn(Collection $records) => $records->each->forceDelete())
+                    ->color('danger') // <-- يجعل لون الزر أحمر للتحذير
+                    ->icon('heroicon-o-trash') // <-- أيقونة سلة المهملات
+                    ->visible(fn() => auth()->user()->can('force_delete_any_order')),
                 Tables\Actions\DeleteBulkAction::make()
-                    ->action(function () {
-                        Notification::make()
-                            ->title(__('order.actions.delete.notification'))
-                            ->warning()
-                            ->send();
-                    }),
+                    ->requiresConfirmation()
+
             ])
             ->groups([
                 Tables\Grouping\Group::make('created_at')
@@ -297,8 +327,8 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
+            OrderMetasRelationManager::class,
             OrderLogsRelationManager::class,
-            OrderMetasRelationManager::class
         ];
     }
 
@@ -457,10 +487,8 @@ class OrderResource extends Resource
 
             Forms\Components\Repeater::make('items')
                 ->hiddenLabel()
-                ->orderColumn()
                 //->collapsed(fn($record) => $record)
-                ->cloneable()
-               // ->relationship('items')
+                // ->relationship('items')
                 ->label(__('order.fields.items.label'))
                 ->itemLabel(__('order.fields.items.item_label'))
                 ->schema([
@@ -475,7 +503,7 @@ class OrderResource extends Resource
                             })
                         )
                         ->required()
-                        ->live()
+                        ->live(onBlur: true)
                         ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                             $set('price', Product::find($state)?->price ?? 0);
                         })
@@ -495,9 +523,11 @@ class OrderResource extends Resource
                         ->placeholder(__('order.fields.items.price.placeholder'))
                         ->columnSpan(3)
                         ->default(0)
+                        ->hint(fn($state) => number_format($state))
+                        ->hintColor('info')
                         ->numeric(),
                     Forms\Components\TextInput::make('qty')
-                        ->live()
+                        ->live(onBlur: true)
                         ->columnSpan(3)
                         ->label(__('order.fields.items.qty.label'))
                         ->placeholder(__('order.fields.items.qty.placeholder'))
@@ -508,14 +538,17 @@ class OrderResource extends Resource
                         ->placeholder(__('order.fields.items.sub_discount.placeholder'))
                         ->columnSpan(3)
                         ->default(0)
+                        ->live(onBlur: true)
                         ->numeric()
                         ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? __('order.fields.items.sub_discount.hint_error') : null)
-                        ->hintColor('danger'),
+                        ->hintColor('info'),
 
                     Forms\Components\TextInput::make('sub_total')
                         ->label(__('order.fields.items.sub_total.label'))
                         ->placeholder(__('order.fields.items.sub_total.placeholder'))
                         ->columnSpan(3)
+                        ->hint(fn($state) => number_format($state))
+                        ->hintColor('success')
                         ->dehydrated(true)
                         ->numeric(),
                 ])
@@ -530,14 +563,17 @@ class OrderResource extends Resource
                     Forms\Components\TextInput::make('shipping')
                         ->label(__('order.fields.shipping.label'))
                         ->placeholder(__('order.fields.shipping.placeholder'))
-                        ->lazy()
+                        ->live(onBlur: true)
                         ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
                             self::calculate($get, $set);
                         })
+                        ->hint(fn($state) => number_format($state))
+                        ->hintColor('info')
                         ->numeric()
                         ->minValue(0)
                         ->default(0),
-                    Forms\Components\TextInput::make('install')
+
+                    /*Forms\Components\TextInput::make('install')
                         ->label(__('order.fields.installation.label'))
                         ->placeholder(__('order.fields.installation.placeholder'))
                         ->numeric()
@@ -545,7 +581,7 @@ class OrderResource extends Resource
                         ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
                             self::calculate($get, $set);
                         })
-                        ->default(0),
+                        ->default(0),*/
 
                     Forms\Components\TextInput::make('discount')
                         ->label(__('order.fields.items.discount.label'))
@@ -553,11 +589,15 @@ class OrderResource extends Resource
                         ->disabled()
                         ->dehydrated(true)
                         ->numeric()
+                        ->hint(fn($state) => number_format($state))
+                        ->hintColor('info')
                         ->default(0),
                     Forms\Components\TextInput::make('total')
                         ->label(__('order.fields.total.label'))
                         ->placeholder(__('order.fields.total.placeholder'))
                         ->disabled()
+                        ->hint(fn($state) => number_format($state))
+                        ->hintColor('info')
                         ->dehydrated(true)
                         ->numeric()
                         ->default(0),
@@ -589,10 +629,10 @@ class OrderResource extends Resource
             $collectItems[] = $invoiceItem;
         }
         $shipping = (float) $get('shipping') ?? 0;
-        $install = (float) $get('install') ?? 0;
+        //$install = (float) $get('install') ?? 0;
 
         $set('discount', $discount);
-        $set('total', $total + $shipping + $install - $discount);
+        $set('total', $total + $shipping - $discount);
 
         $set('items', $collectItems);
         //dd($collectItems);
@@ -616,8 +656,8 @@ class OrderResource extends Resource
         $set('items', $collectItems);
 
         $shipping = (float) $get('shipping') ?? 0;
-        $install = (float) $get('install') ?? 0;
+        // $install = (float) $get('install') ?? 0;
 
-        $set('total', $total + $shipping + $install);
+        $set('total', $total + $shipping);
     }
 }

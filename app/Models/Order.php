@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class Order extends Model
 {
@@ -38,6 +39,7 @@ class Order extends Model
     protected $casts = [
         'status' => OrderStatus::class,
         'guest_customer' => GuestCustomer::class,
+        
     ];
 
     public function branch(): BelongsTo
@@ -126,8 +128,10 @@ class Order extends Model
         $month = date('m');
 
         $lastInvoice = self::whereYear('created_at', $year)
+
             ->whereMonth('created_at', $month)
             ->orderBy('id', 'desc')
+            ->withoutGlobalScope(SoftDeletingScope::class)
             ->first();
 
         $nextNumber = 1;

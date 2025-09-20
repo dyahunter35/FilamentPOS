@@ -22,7 +22,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-m-users';
     protected static ?int $navigationSort = 1;
-    protected static bool $isScopedToTenant = true;
+    protected static bool $isScopedToTenant = false;
 
     public static function getModelLabel(): string
     {
@@ -66,6 +66,7 @@ class UserResource extends Resource
                             ->label(__('user.fields.password.label'))
                             ->placeholder(__('user.fields.password.placeholder'))
                             ->password()
+                            ->required()
                             ->revealable(filament()->arePasswordsRevealable())
                             ->rule(Password::default())
                             ->autocomplete('new-password')
@@ -84,6 +85,7 @@ class UserResource extends Resource
                             ->saveRelationshipsUsing(function (Model $record, $state) {
                                 $record->roles()->sync($state);
                             })
+                            ->visible(fn() => auth()->user()->hasRole('super_admin'))
                             ->multiple()
                             ->preload()
                             ->searchable(),
@@ -95,6 +97,8 @@ class UserResource extends Resource
                             ->saveRelationshipsUsing(function (Model $record, $state) {
                                 $record->branch()->sync($state);
                             })
+                            ->rules(['array', 'min:1'])
+                            // (اختياري ولكن موصى به) رسالة خطأ مخصصة
                             ->multiple()
                             ->preload()
                             ->searchable(),
@@ -136,11 +140,17 @@ class UserResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(auth()->user()->can('restore_user')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make()->hidden(fn(User $user) => (auth()->user()->hasRole('super_admin') && $user->id == auth()->user()->id)),
+                Tables\Actions\DeleteAction::make()->hidden(fn(User $user) => (auth()->user()->hasRole('super_admin') || $user->id == auth()->user()->id) || $user->deleted_at),
+
+                Tables\Actions\RestoreAction::make()
+                    ->visible(fn($record) => $record->deleted_at),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->visible(fn($record) => $record->deleted_at),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

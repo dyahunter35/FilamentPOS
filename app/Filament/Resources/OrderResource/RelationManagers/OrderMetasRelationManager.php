@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Enums\OrderStatus;
+use App\Enums\Payment;
 use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -24,17 +25,11 @@ class OrderMetasRelationManager extends RelationManager
         return trans('filament-invoices::messages.invoices.payments.title');
     }
 
-    /**
-     * @return string|null
-     */
     public static function getLabel(): ?string
     {
         return trans('filament-invoices::messages.invoices.payments.title');
     }
 
-    /**
-     * @return string|null
-     */
     public static function getModelLabel(): ?string
     {
         return trans('filament-invoices::messages.invoices.payments.single');
@@ -62,49 +57,58 @@ class OrderMetasRelationManager extends RelationManager
                     ->formatStateUsing(fn($state) => (string)number_format($state, 2))
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('group')
-                    ->badge()
+                /* Tables\Columns\TextColumn::make('group')
+                    ->badge() */
 
             ])
             ->filters([
                 //
             ])
             ->headerActions([
-                Tables\Actions\Action::make('pay')
-                    ->visible(fn() => ($this->ownerRecord->total != $this->ownerRecord->paid) || $this->ownerRecord->status === OrderStatus::Processing || $this->ownerRecord->status === OrderStatus::New)
-                    ->requiresConfirmation()
+                Tables\Actions\Action::make('pay')->icon('heroicon-o-credit-card')
+                    ->label(__('order.actions.pay.label'))
+                    ->modalHeading(__('order.actions.pay.modal.heading'))
+                    ->tooltip(__('order.actions.pay.label'))
                     ->color('info')
-                    ->fillForm(fn($record) => [
+                    //->visible(fn() => ($this->ownerRecord->total != $this->ownerRecord->paid) || $this->ownerRecord->status === OrderStatus::Processing || $this->ownerRecord->status === OrderStatus::New)
+                    ->requiresConfirmation()
+
+                    ->fillForm(fn() => [
                         'total' => $this->ownerRecord->total,
                         'paid' => $this->ownerRecord->paid,
                         'amount' => $this->ownerRecord->total - $this->ownerRecord->paid,
                     ])
                     ->form([
                         Forms\Components\TextInput::make('total')
-                            ->label(trans('filament-invoices::messages.invoices.actions.total'))
+                            ->label(__('order.fields.total.label'))
                             ->numeric()
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
                             ->disabled(),
                         Forms\Components\TextInput::make('paid')
-                            ->label(trans('filament-invoices::messages.invoices.actions.paid'))
+                            ->label(__('order.fields.paid.label'))
                             ->numeric()
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
                             ->disabled(),
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
-                            ->options([
-                                'cash' => __('order.fields.payment_method.options.cash'),
-                                'bok' => __('order.fields.payment_method.options.bok'),
-                            ])
                             ->required()
-                            ->default('bok'),
+                            ->default(Payment::Cash)
+                            ->options(Payment::class),
                         Forms\Components\TextInput::make('amount')
-                            ->label(trans('filament-invoices::messages.invoices.actions.amount'))
+                            ->label(__('order.fields.amount.label'))
                             ->required()
-                            ->numeric(),
+                            ->live(onBlur: true)
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
+                            ->numeric()
+                            ->maxValue($this->ownerRecord->total - $this->ownerRecord->paid)
+                            ->minValue(1)
                     ])
                     ->action(function (array $data, Order $ownerRecord) {
-                        if($data['amount']<=0)
-                        {
-                            Notification::make()->send();
+                        if ($data['amount'] > $ownerRecord->total - $ownerRecord->paid || $data['amount'] <= 0) {
+                            Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
                             return;
                         }
                         $this->ownerRecord->update([
@@ -133,15 +137,9 @@ class OrderMetasRelationManager extends RelationManager
                             ->body(trans('filament-invoices::messages.invoices.actions.pay.notification.body'))
                             ->success()
                             ->send();
-                    })
-                    ->icon('heroicon-o-credit-card')
-                    ->label(trans('pay'))
-                    ->modalHeading(trans('filament-invoices::messages.invoices.actions.pay.label'))
-                    ->tooltip(trans('filament-invoices::messages.invoices.actions.pay.label')),
-
-
-
-            ])
+                        return redirect(request()->header('Referer'));
+                    }),
+            ]) // <-- التصحيح الأول: تم إغلاق ->headerActions هنا
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

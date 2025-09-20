@@ -33,6 +33,7 @@ class OrderMeta extends Model
 
     protected $casts = [
         'value' => 'json',
+       // 'group' => Payment::class,
     ];
 
     /**

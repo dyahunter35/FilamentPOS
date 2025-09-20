@@ -115,10 +115,17 @@ class CustomerResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\TrashedFilter::make()
+                    ->visible(auth()->user()->can('restore_customer')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->visible(fn($record) => !$record->deleted_at),
+                Tables\Actions\RestoreAction::make()
+                    ->visible(fn($record) => $record->deleted_at),
+                Tables\Actions\ForceDeleteAction::make()
+                    ->visible(fn($record) => $record->deleted_at),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

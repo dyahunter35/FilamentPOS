@@ -99,7 +99,8 @@ class ProductResource extends Resource
                                     ->numeric()
                                     ->required(),
 
-                                Forms\Components\TextInput::make('old_price')
+
+                                /* Forms\Components\TextInput::make('old_price')
                                     ->label(__('product.fields.old_price.label'))
                                     ->numeric()
                                     ->required(),
@@ -108,12 +109,19 @@ class ProductResource extends Resource
                                     ->label(__('product.fields.cost.label'))
                                     ->helperText(__('product.fields.cost.helper'))
                                     ->numeric()
-                                    ->required(),
+                                    ->required(), */
                             ])
-                            ->columns(2),
+                            ->columnSpan(1),
                         Forms\Components\Section::make(__('product.sections.inventory.label'))
                             ->schema([
-                                Forms\Components\TextInput::make('sku')
+                                Forms\Components\TextInput::make('security_stock')
+                                    ->label(__('product.fields.security_stock.label'))
+                                    ->helperText(__('product.fields.security_stock.helper'))
+                                    ->numeric()
+                                    ->rules(['integer', 'min:0'])
+                                    ->required(),
+
+                                /* Forms\Components\TextInput::make('sku')
                                     ->label(__('product.fields.sku.label'))
                                     ->unique(Product::class, 'sku', ignoreRecord: true)
                                     ->required(),
@@ -121,18 +129,11 @@ class ProductResource extends Resource
                                 Forms\Components\TextInput::make('barcode')
                                     ->label(__('product.fields.barcode.label'))
                                     ->unique(Product::class, 'barcode', ignoreRecord: true)
-                                    ->required(),
-
-                                Forms\Components\TextInput::make('security_stock')
-                                    ->label(__('product.fields.security_stock.label'))
-                                    ->helperText(__('product.fields.security_stock.helper'))
-                                    ->numeric()
-                                    ->rules(['integer', 'min:0'])
-                                    ->required(),
+                                    ->required(), */
                             ])
-                            ->columns(2),
+                            ->columnSpan(1),
 
-                        Forms\Components\Section::make(__('product.sections.shipping.label'))
+                        /* Forms\Components\Section::make(__('product.sections.shipping.label'))
                             ->schema([
                                 Forms\Components\Checkbox::make('backorder')
                                     ->label(__('product.fields.backorder.label')),
@@ -140,9 +141,10 @@ class ProductResource extends Resource
                                 Forms\Components\Checkbox::make('requires_shipping')
                                     ->label(__('product.fields.requires_shipping.label')),
                             ])
-                            ->columns(2),
+                            ->columns(2), */
 
                     ])
+                    ->columns(2)
                     ->columnSpan(['lg' => 2]),
 
                 Forms\Components\Group::make()
@@ -223,11 +225,11 @@ class ProductResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('sku')
+                /* Tables\Columns\TextColumn::make('sku')
                     ->label(__('product.columns.sku.label'))
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable(), */
 
                 Tables\Columns\TextColumn::make('stock_for_current_branch')
                     ->label(__('product.columns.quantity.label'))
@@ -239,14 +241,14 @@ class ProductResource extends Resource
                     ->label(__('product.columns.all_branches_quantity.label'))
                     ->searchable()
                     ->sortable()
-                    ->visible(fn() => auth()->user()->hasRole('super_admin'))
+                    ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('branches.name')
                     ->label(__('product.columns.branch.label'))
                     ->searchable()
                     ->badge()
-                    ->visible(fn() => auth()->user()->hasRole('super_admin'))
+                    ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('security_stock')
@@ -268,21 +270,21 @@ class ProductResource extends Resource
                     ->constraints([
                         TextConstraint::make('name')->label(__('product.filters.constraints.name')),
                         TextConstraint::make('slug')->label(__('product.filters.constraints.slug')),
-                        TextConstraint::make('sku')->label(__('product.filters.constraints.sku')),
-                        TextConstraint::make('barcode')->label(__('product.filters.constraints.barcode')),
+                        //TextConstraint::make('sku')->label(__('product.filters.constraints.sku')),
+                        //TextConstraint::make('barcode')->label(__('product.filters.constraints.barcode')),
                         TextConstraint::make('description')->label(__('product.filters.constraints.description')),
-                        NumberConstraint::make('old_price')->label(__('product.filters.constraints.old_price')),
+                        //NumberConstraint::make('old_price')->label(__('product.filters.constraints.old_price')),
                         NumberConstraint::make('price')->label(__('product.filters.constraints.price')),
-                        NumberConstraint::make('cost')->label(__('product.filters.constraints.cost')),
+                        // NumberConstraint::make('cost')->label(__('product.filters.constraints.cost')),
                         NumberConstraint::make('security_stock')->label(__('product.filters.constraints.security_stock')),
                         BooleanConstraint::make('is_visible')->label(__('product.filters.constraints.is_visible')),
-                        BooleanConstraint::make('featured')->label(__('product.filters.constraints.featured')),
-                        BooleanConstraint::make('backorder')->label(__('product.filters.constraints.backorder')),
-                        BooleanConstraint::make('requires_shipping')->label(__('product.filters.constraints.requires_shipping')),
-                        DateConstraint::make('published_at')->label(__('product.filters.constraints.published_at')),
+                        // BooleanConstraint::make('featured')->label(__('product.filters.constraints.featured')),
+                        //BooleanConstraint::make('backorder')->label(__('product.filters.constraints.backorder')),
+                        //BooleanConstraint::make('requires_shipping')->label(__('product.filters.constraints.requires_shipping')),
+                        //DateConstraint::make('published_at')->label(__('product.filters.constraints.published_at')),
                     ])
                     ->constraintPickerColumns(2),
-            ], layout: Tables\Enums\FiltersLayout::AboveContentCollapsible)
+            ], layout: Tables\Enums\FiltersLayout::Modal)
             ->deferFilters()
             ->actions([
                 Tables\Actions\EditAction::make(),

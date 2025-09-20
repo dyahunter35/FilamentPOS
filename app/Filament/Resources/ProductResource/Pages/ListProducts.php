@@ -18,6 +18,7 @@ class ListProducts extends ListRecords
                 ->label(__('product.actions.report.label'))
                 ->icon(__('heroicon-o-document'))
                 ->color('info')
+                ->visible(fn()=>!auth()->user()->hasRole('بائع'))
                 ->url(ProductResource::getUrl('report')),
 
             Actions\Action::make('report')

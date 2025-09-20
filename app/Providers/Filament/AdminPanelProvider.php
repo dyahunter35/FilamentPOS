@@ -34,12 +34,12 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('admin')
+            ->path('')
             ->login()
             ->font('Poppins')
             ->databaseTransactions()
-            //->databaseNotifications()
-            ->brandName('Refal')
+            ->databaseNotifications()
+            ->brandName('Mohamed Co')
             ->colors([
                 'primary' => [
                     'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق
@@ -78,7 +78,7 @@ class AdminPanelProvider extends PanelProvider
 
             //->favicon(asset('images/favicon.ico'))
             //->brandLogo(asset('asset/images/logo/gas 200.png'))
-            ->registration()
+            //->registration()
             ->tenant(Branch::class, slugAttribute: 'slug')
             ->when(
                 // Condition: Check if the logged-in user's email is the specific one
@@ -89,12 +89,14 @@ class AdminPanelProvider extends PanelProvider
                     ->tenantRegistration(RegisterBranch::class)
                     ->tenantProfile(EditBranch::class)
             )
+            // disable user impersonation
+            //->errorNotifications(false)
 
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 MainDashboard::class,
-                SalesReport::class
+                //SalesReport::class
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

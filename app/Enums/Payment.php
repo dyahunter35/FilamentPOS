@@ -6,31 +6,31 @@ use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasIcon;
 use Filament\Support\Contracts\HasLabel;
 
-enum Gender: string implements HasColor, HasIcon, HasLabel
+enum Payment: string implements HasColor, HasIcon, HasLabel
 {
-    case Male = 'male';
+    case Cash = 'cash';
 
-    case Female = 'female';
+    case Bok = 'bok';
 
     public function getLabel(): string
     {
-        return __('customer.fields.gender.options.'.$this->value);
+        return __('order.fields.payment_method.options.'.$this->value);
     }
 
     public function getColor(): string | array | null
     {
         return match ($this) {
-            self::Male => 'info',
-            self::Female => 'warning',
-            
+            self::Cash => 'info',
+            self::Bok => 'warning',
+
         };
     }
 
     public function getIcon(): ?string
     {
         return match ($this) {
-            self::Male => 'heroicon-m-sparkles',
-            self::Female => 'heroicon-m-arrow-path',
+            self::Cash => 'heroicon-m-currency-dollar',
+            self::Bok => 'heroicon-m-credit-card',
         };
     }
 }

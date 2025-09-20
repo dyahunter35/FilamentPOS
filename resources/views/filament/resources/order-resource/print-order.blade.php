@@ -76,8 +76,8 @@
                                 <div>
                                     <div class="flex justify-between gap-4">
                                         <div class="text-gray-400">
-                                    {{ trans('order.invoice.labels.today') }}
-                                             : </div>
+                                            {{ trans('order.invoice.labels.today') }}
+                                            : </div>
                                         <div>{{ now()->toDateString() }}</div>
                                     </div>
                                     <div class="flex justify-between gap-4">
@@ -121,6 +121,7 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-4 divide-y divide-gray-100 dark:divide-white/5">
+                            {{ $this->getRecord()->items }}
                             @foreach ($this->getRecord()->items as $key => $item)
                                 <div class="flex justify-between px-4 py-2">
                                     <div class="flex flex-col w-full">
@@ -349,7 +350,68 @@
                 </div>
             </div>
         </x-filament::section>
-        <div class="no-print">
+        <x-filament::section>
+
+
+            <!-- Header Section -->
+            <header class="border-b border-gray-200 p-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div>
+                        <h1 class="text-l font-bold text-gray-900">المدفوعات</h1>
+                    </div>
+
+                </div>
+            </header>
+
+            <!-- Table Container for Responsiveness -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-gray-600">
+                    <!-- Table Head -->
+                    <thead class="text-l text-gray-700 uppercase bg-white border-b border-gray-200">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-semibold text-center">التاريخ</th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-center">
+                                المبلغ
+                            </th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-center">
+                                طريقة الدفع
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <!-- Table Body -->
+                    <tbody>
+                        @forelse ($this->getRecord()->orderMetas()->latest()->get() as $meta)
+
+                            <tr
+                                class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap  text-center">
+                                    {{ $meta->created_at->toDateString() }}
+                                </td>
+
+                                <td class="px-6 py-4 text-center">
+                                    {{ number_format($meta->value, 2) }} <small class="text-md font-normal">SDG</small>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    {{ \App\Enums\Payment::tryFrom($meta->group)->getLabel() }}
+                                </td>
+
+                                {{-- <td class="px-6 py-4 text-center">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            أداء مرتفع
+                                        </span>
+                                    </td> --
+                                    </tr> --}}
+                        @endforeach
+                    </tbody>
+
+
+                </table>
+            </div>
+        </x-filament::section>
+
+        {{-- <div class="no-print">
             @php
                 $relationManagers = $this->getRelationManagers();
                 $hasCombinedRelationManagerTabsWithContent = $this->hasCombinedRelationManagerTabsWithContent();
@@ -369,7 +431,7 @@
                     @endif
                 </x-filament-panels::resources.relation-managers>
             @endif
-        </div>
+        </div> --}}
     </x-filament-panels::page>
 
 
