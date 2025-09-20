@@ -57,8 +57,9 @@ class OrderMetasRelationManager extends RelationManager
                     ->formatStateUsing(fn($state) => (string)number_format($state, 2))
                     ->sortable(),
 
-                /* Tables\Columns\TextColumn::make('group')
-                    ->badge() */
+                Tables\Columns\TextColumn::make('group')
+                    ->formatStateUsing(fn($state) => Payment::tryFrom($state)->getLabel() ?? $state)
+                    ->badge()
 
             ])
             ->filters([
@@ -70,9 +71,8 @@ class OrderMetasRelationManager extends RelationManager
                     ->modalHeading(__('order.actions.pay.modal.heading'))
                     ->tooltip(__('order.actions.pay.label'))
                     ->color('info')
-                    //->visible(fn() => ($this->ownerRecord->total != $this->ownerRecord->paid) || $this->ownerRecord->status === OrderStatus::Processing || $this->ownerRecord->status === OrderStatus::New)
+                    ->visible(fn() => ($this->ownerRecord->total != $this->ownerRecord->paid) || $this->ownerRecord->status === OrderStatus::Processing || $this->ownerRecord->status === OrderStatus::New)
                     ->requiresConfirmation()
-
                     ->fillForm(fn() => [
                         'total' => $this->ownerRecord->total,
                         'paid' => $this->ownerRecord->paid,
@@ -107,7 +107,7 @@ class OrderMetasRelationManager extends RelationManager
                             ->minValue(1)
                     ])
                     ->action(function (array $data, Order $ownerRecord) {
-                        if ($data['amount'] > $ownerRecord->total - $ownerRecord->paid || $data['amount'] <= 0) {
+                        if ($data['amount'] >= $ownerRecord->total - $ownerRecord->paid || $data['amount'] <= 0) {
                             Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
                             return;
                         }

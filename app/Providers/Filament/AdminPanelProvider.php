@@ -40,7 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseTransactions()
             ->databaseNotifications()
             ->brandName(config('app.name'))
-
+            ->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             /* ->colors([
                 'primary' => [
                     'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق

@@ -28,6 +28,7 @@ class Order extends Model
         'shipping',
         'shipping_method',
         'notes',
+        'is_guest',
         'guest_customer',
         'caused_by',
         'branch_id',
@@ -39,7 +40,7 @@ class Order extends Model
     protected $casts = [
         'status' => OrderStatus::class,
         'guest_customer' => GuestCustomer::class,
-        
+
     ];
 
     public function branch(): BelongsTo

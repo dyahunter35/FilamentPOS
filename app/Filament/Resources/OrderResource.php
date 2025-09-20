@@ -7,6 +7,7 @@ use App\Filament\Resources\OrderResource\RelationManagers;
 use App\Models\Order;
 use Filament\Forms;
 use App\Enums\OrderStatus;
+use App\Enums\Payment;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderLogsRelationManager;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderMetasRelationManager;
 use App\Filament\Resources\OrderResource\Widgets\OrderStats;
@@ -150,6 +151,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('total')
                     ->label(__('order.fields.total.label'))
                     ->searchable()
+                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
                     ->sortable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
@@ -161,6 +163,7 @@ class OrderResource extends Resource
                     ->label(__('order.fields.shipping.label'))
                     ->searchable()
                     ->sortable()
+                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
                     ->toggleable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
@@ -238,23 +241,23 @@ class OrderResource extends Resource
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
                             ->required()
-                            ->default('bok')
-                            ->options([
-                                'cash' => __('order.fields.payment_method.options.cash'),
-                                'bok' => __('order.fields.payment_method.options.bok'),
+                            ->default(Payment::Cash)
+                            ->options(Payment::class),
 
-                            ]),
                         Forms\Components\TextInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
+                            ->hint(fn($state) => number_format($state))
+                            ->maxValue(fn($record)=>$record->total - $record->paid)
+                            ->minValue(1)
                             ->hint(fn($state) => number_format($state))
                             ->hintColor('info')
                             ->numeric(),
                     ])
                     ->action(function (array $data, Order $record) {
 
-                        if ($data['amount'] > $record->total - $record->paid || $data['amount'] <= 0) {
+                        if ($data['amount'] >= $record->total - $record->paid || $data['amount'] <= 0) {
                             Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
                             return;
                         }
@@ -269,7 +272,7 @@ class OrderResource extends Resource
                         ]);
 
                         $record->orderLogs()->create([
-                            'log' => 'Paid ' . number_format($data['amount'], 2) . ' ' . $record->currency . ' By: ' . auth()->user()->name,
+                            'log' => 'دفع مبلغ ' . number_format($data['amount'], 2) . ' ' . $record->currency . ' بواسطة: ' . auth()->user()->name,
                             'type' => 'payment',
                         ]);
 
