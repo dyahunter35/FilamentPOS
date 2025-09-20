@@ -82,7 +82,7 @@ class AdminPanelProvider extends PanelProvider
             ->tenant(Branch::class, slugAttribute: 'slug')
             ->when(
                 // Condition: Check if the logged-in user's email is the specific one
-                Auth::check() && Auth::user()->email === 'admin@example.com',
+                Auth::check() && Auth::user()->email === 'dyahunter35@gmail.com',
 
                 // Callback: This logic only runs if the condition is true
                 fn(Panel $panel) => $panel
