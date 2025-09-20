@@ -5,118 +5,90 @@ namespace App\Filament\Resources\OrderResource\Pages;
 use App\Filament\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
-use App\Services\InventoryService; // <-- استيراد الخدمة
+use App\Services\InventoryService;
 use Filament\Facades\Filament;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use Filament\Support\Exceptions\Halt; // <-- مهم لإيقاف العملية
+use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB; // <-- مهم للـ transactions
+use Illuminate\Support\Facades\DB;
 
 class CreateOrder extends CreateRecord
 {
     protected static string $resource = OrderResource::class;
 
     /**
-     * تم تعطيل هذه الدالة لأننا سنضع منطقها داخل handleRecordCreation
-     * @param array $data
-     * @return array
+     * This hook runs AFTER the order and its items have been successfully created.
+     * This is the perfect place to handle stock deduction.
      */
-    /* protected function mutateFormDataBeforeCreate(array $data): array
+    protected function afterCreate(): void
     {
-        // ... Logic moved to handleRecordCreation
-    } */
-
-    /**
-     * تم تعطيل هذه الدالة لأننا سنضع منطقها داخل handleRecordCreation
-     */
-    /* public function afterCreate()
-    {
-        // ... Logic moved to handleRecordCreation
-    } */
-
-    /**
-     * التحكم الكامل في عملية إنشاء السجل لضمان سلامة البيانات والمخزون.
-     *
-     * @param array $data
-     * @return Model
-     * @throws Halt
-     */
-    protected function handleRecordCreation(array $data): Model
-    {
-        // Get the full state of the form, including the repeater items
-        $fullData = $this->form->getState();
-
-        //dd($fullData);
-        // Now you can access the items
-        $orderItemsData = $fullData['items'] ?? [];
-
         $inventoryService = new InventoryService();
         $currentBranch = Filament::getTenant();
         $currentUser = auth()->user();
+        $order = $this->record;
 
-        // Start a transaction for the entire operation
-        return DB::transaction(function () use ($inventoryService, $currentBranch, $currentUser, $data, $orderItemsData) {
-
-            // --- 1. Stock Availability Check ---
-            if (empty($orderItemsData)) {
+        DB::transaction(function () use ($inventoryService, $currentBranch, $currentUser, $order) {
+            if ($order->items->isEmpty()) {
                 Notification::make()->title(__('order.actions.create.notifications.at_least_one'))->warning()->send();
-                throw new Halt();
+                // We throw an exception to roll back the transaction
+                throw new \Exception('Cannot create an order with no items.');
             }
 
-            foreach ($orderItemsData as $item) {
-                $product = Product::find($item['product_id']);
-                if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $item['qty'])) {
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+
+                // Final check for stock before deduction
+                if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $item->qty)) {
                     Notification::make()
                         ->title(__('order.actions.create.notifications.stock.title'))
                         ->body(__('order.actions.create.notifications.stock.message', ['product' => $product->name]))
                         ->danger()
                         ->send();
-
-                    throw new Halt();
+                    throw new \Exception("Stock not available for {$product->name}.");
                 }
-            }
-
-            // --- 2. Prepare Main Order Data ---
-            // (The guest customer logic from your mutateFormDataBeforeCreate is here)
-            if (isset($data['is_guest'])) {
-                if ($data['is_guest'] === false) {
-                    $data['guest_customer'] = null;
-                } else {
-                    $data['customer_id'] = null;
-                }
-            }
-            $data['number'] = Order::generateInvoiceNumber();
-            $data['caused_by'] = $currentUser->id;
-            $data['branch_id'] = $currentBranch->id;
-
-            // --- 3. Create the Main Order ---
-            $order = static::getModel()::create($data);
-
-            // --- 4. Create Order Items and Deduct Stock ---
-            foreach ($orderItemsData as $itemData) {
-                // Create the order item record and associate it with the order
-                $order->items()->create($itemData);
 
                 // Deduct the stock
-                $productToDeduct = Product::find($itemData['product_id']);
                 $inventoryService->deductStockForBranch(
-                    $productToDeduct,
+                    $product,
                     $currentBranch,
-                    $itemData['qty'],
+                    $item->qty,
                     "Order #{$order->number}",
                     $currentUser
                 );
             }
 
             $inventoryService->updateAllBranches();
-            // You can add your order log creation here if you wish
+
             $order->orderLogs()->create([
                 'log' => "Invoice created By: " . $currentUser->name,
                 'type' => 'created'
             ]);
-
-            return $order;
         });
+    }
+
+    /**
+     * This method runs BEFORE the main record is created.
+     * It's used to prepare the data.
+     */
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $currentBranch = Filament::getTenant();
+        $currentUser = auth()->user();
+
+        // Handle guest customer logic
+        if (isset($data['is_guest'])) {
+            if ($data['is_guest'] === false) {
+                $data['guest_customer'] = null;
+            } else {
+                $data['customer_id'] = null;
+            }
+        }
+
+        $data['number'] = Order::generateInvoiceNumber();
+        $data['caused_by'] = $currentUser->id;
+        $data['branch_id'] = $currentBranch->id;
+
+        return $data;
     }
 }

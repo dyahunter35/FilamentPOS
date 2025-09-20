@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\OrderResource\Pages;
 
+use App\Enums\OrderStatus;
 use App\Filament\Resources\OrderResource;
 use App\Models\Product;
 use App\Services\InventoryService;
@@ -20,13 +21,13 @@ class EditOrder extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
     }
 
-    
     /**
-     * This method runs for both Create and Update.
+     * This method runs AFTER the form is submitted but BEFORE the update happens.
      * It cleans up the data before it's saved.
      */
     protected function mutateFormDataBeforeSave(array $data): array
@@ -41,15 +42,15 @@ class EditOrder extends EditRecord
             $data['customer_id'] = null;
         }
 
-
         // We don't need the is_guest flag in the database
-        //unset($data['is_guest']);
+        unset($data['is_guest']);
 
         return $data;
     }
 
     /**
      * This is the main logic for handling the update process.
+     * Overriding this gives us full control over the stock management transaction.
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
@@ -57,17 +58,16 @@ class EditOrder extends EditRecord
         $currentBranch = Filament::getTenant();
         $currentUser = auth()->user();
 
-        // Get the new state of items from the form
-        $newItemsData = $this->form->getState()['items'] ?? [];
+        // Get the new state of items from the form data
+        // With ->relationship(), Filament prepares the data for the relation.
+        $newItemsData = $data['items'] ?? [];
 
-        // Get the original items before the update
-        $originalItems = $record->items()->get()->keyBy('product_id');
+        return DB::transaction(function () use ($record, $data, $newItemsData, $inventoryService, $currentBranch, $currentUser) {
 
-        return DB::transaction(function () use ($record, $data, $newItemsData, $originalItems, $inventoryService, $currentBranch, $currentUser) {
+            // Get the original items before any changes
+            $originalItems = $record->items()->get();
 
             // --- 1. Restock original items ---
-            // We return all original items to stock to simplify the logic.
-            // Then we will deduct the new quantities.
             foreach ($originalItems as $item) {
                 $product = Product::find($item->product_id);
                 $inventoryService->addStockForBranch(
@@ -79,44 +79,40 @@ class EditOrder extends EditRecord
                 );
             }
 
-            // --- 2. Check stock availability for the new set of items ---
-            if (empty($newItemsData)) {
+            if (($record->total != $data['total'])) {
+                $data['status'] = OrderStatus::Processing;
+            }
+
+            // --- 2. Update the main order and its related items ---
+            // Filament's default update process will handle creating, updating,
+            // and deleting the related 'items' records automatically.
+            $record->update($data);
+
+            // --- 3. Deduct stock for the new set of items ---
+            // We need to refresh the record to get the newly saved items
+            $record->refresh();
+            $newItemsFromDB = $record->items;
+
+            if ($newItemsFromDB->isEmpty()) {
                 Notification::make()->title(__('order.actions.create.notifications.at_least_one'))->warning()->send();
                 throw new Halt();
             }
 
-            foreach ($newItemsData as $newItem) {
-                $product = Product::find($newItem['product_id']);
-                if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $newItem['qty'])) {
+            foreach ($newItemsFromDB as $newItem) {
+                $product = Product::find($newItem->product_id);
+                if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $newItem->qty)) {
                     Notification::make()
                         ->title(__('order.actions.create.notifications.stock.title'))
                         ->body(__('order.actions.create.notifications.stock.message', ['product' => $product->name]))
                         ->danger()
                         ->send();
-
-                    // IMPORTANT: Rollback stock additions before halting
-                    // This is a simplified rollback. For production, a more robust mechanism is needed.
-                    // For now, we halt, and the transaction will handle the full rollback.
                     throw new Halt('Stock not available, transaction rolled back.');
                 }
-            }
 
-            // --- 3. Update the main order record ---
-            $record->update($data);
-
-            // --- 4. Delete old items and deduct stock for new items ---
-            $record->items()->delete(); // Clear out all old items
-
-            foreach ($newItemsData as $itemData) {
-                // Create the new order item
-                $record->items()->create($itemData);
-
-                // Deduct the stock for the new item quantity
-                $productToDeduct = Product::find($itemData['product_id']);
                 $inventoryService->deductStockForBranch(
-                    $productToDeduct,
+                    $product,
                     $currentBranch,
-                    $itemData['qty'],
+                    $newItem->qty,
                     "Order Update #{$record->number}",
                     $currentUser
                 );
@@ -124,7 +120,7 @@ class EditOrder extends EditRecord
 
             $inventoryService->updateAllBranches();
 
-            // --- 5. Add an update log ---
+            // --- 4. Add an update log ---
             $record->orderLogs()->create([
                 'log' => "Invoice updated By: " . $currentUser->name,
                 'type' => 'updated'

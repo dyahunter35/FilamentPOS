@@ -87,7 +87,7 @@ class OrderResource extends Resource
                                 static::getItemsRepeater(),
                             ),
                     ])
-                    ->columnSpan(['lg' => fn(?Order $record) => $record === null ? 2 : 2]),
+                    ->columnSpan(['lg' => fn(?Order $record) => $record === null ? 3 : 2]),
 
                 Forms\Components\Section::make()
                     ->schema([
@@ -292,25 +292,25 @@ class OrderResource extends Resource
                     ->visible(fn($record) => !$record->deleted_at),
 
                 Tables\Actions\RestoreAction::make()
-                    ->requiresConfirmation() // <-- مهم جدًا: يطلب تأكيدًا قبل التنفيذ
+                    ->requiresConfirmation()
                     ->visible(fn($record) => $record->deleted_at && auth()->user()->can('restore_order')),
 
                 Tables\Actions\Action::make('forceDeleteItem')
                     ->label('حذف نهائي')
-                    ->requiresConfirmation() // <-- مهم جدًا: يطلب تأكيدًا قبل التنفيذ
+                    ->requiresConfirmation()
                     ->action(fn(Model $record) => $record->forceDelete())
-                    ->color('danger') // <-- يجعل لون الزر أحمر للتحذير
-                    ->icon('heroicon-o-trash') // <-- أيقونة سلة المهملات
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
                     ->visible(fn($record) => $record->deleted_at && auth()->user()->can('force_delete_order')),
 
             ])->defaultSort('created_at', 'desc')
             ->groupedBulkActions([
                 Tables\Actions\BulkAction::make('forceDelete')
                     ->label('حذف نهائي للمحدد')
-                    ->requiresConfirmation() // <-- مهم جدًا: يطلب تأكيدًا قبل التنفيذ
+                    ->requiresConfirmation()
                     ->action(fn(Collection $records) => $records->each->forceDelete())
-                    ->color('danger') // <-- يجعل لون الزر أحمر للتحذير
-                    ->icon('heroicon-o-trash') // <-- أيقونة سلة المهملات
+                    ->color('danger')
+                    ->icon('heroicon-o-trash')
                     ->visible(fn() => auth()->user()->can('force_delete_any_order')),
                 Tables\Actions\DeleteBulkAction::make()
                     ->requiresConfirmation()
@@ -351,7 +351,6 @@ class OrderResource extends Resource
         ];
     }
 
-    /** @return Builder<Order> */
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -375,7 +374,6 @@ class OrderResource extends Resource
         ];
     }
 
-    /** @return Builder<Order> */
     public static function getGlobalSearchEloquentQuery(): Builder
     {
         return parent::getGlobalSearchEloquentQuery()->with(['registeredCustomer', 'items']);
@@ -389,7 +387,6 @@ class OrderResource extends Resource
         return (string) $modelClass::where('status', 'new')->where('branch_id', Filament::getTenant()->id)->count();
     }
 
-    /** @return Forms\Components\Component[] */
     public static function getDetailsFormSchema(): array
     {
         return [
@@ -405,14 +402,12 @@ class OrderResource extends Resource
 
             Forms\Components\ToggleButtons::make('is_guest')
                 ->label(__('order.fields.is_guest.label'))
-                ->live() // This makes the form update dynamically when toggled
-                ->default(true) // Default based on whether customer_id is null
+                ->live()
+                ->default(true)
                 ->inline()
                 ->grouped()
                 ->boolean(),
 
-            // Field for selecting a REGISTERED customer.
-            // It is only visible when 'is_guest' is FALSE.
             Forms\Components\Select::make('customer_id')
                 ->label(__('order.fields.customer.label'))
                 ->placeholder(__('order.fields.customer.placeholder'))
@@ -420,54 +415,43 @@ class OrderResource extends Resource
                 ->searchable()
                 ->required(fn(Get $get) => !$get('is_guest'))
                 ->preload()
-                // Required only if not a guest
                 ->visible(fn(Get $get) => !$get('is_guest'))
                 ->createOptionForm([
-
                     Forms\Components\TextInput::make('name')
                         ->label(__('customer.fields.name.label'))
                         ->placeholder(__('customer.fields.name.placeholder'))
                         ->required()
                         ->maxLength(255),
-
                     Forms\Components\TextInput::make('email')
                         ->label(__('customer.fields.email.label'))
                         ->placeholder(__('customer.fields.email.placeholder'))
                         ->email()
                         ->maxLength(255)
                         ->unique(),
-
                     Forms\Components\TextInput::make('phone')
                         ->label(__('customer.fields.phone.label'))
                         ->placeholder(__('customer.fields.phone.placeholder'))
                         ->maxLength(255),
-
                     Forms\Components\Hidden::make('branch_id')
                         ->default(Filament::getTenant()->id),
-
                 ])
                 ->createOptionAction(function (Action $action) {
                     return $action
                         ->modalHeading(__('customer.actions.create.modal.heading'))
                         ->modalSubmitActionLabel(__('customer.actions.create.modal.submit'))
                         ->modalWidth('lg');
-                }),  // Visible only if not a guest
+                }),
 
-            // Section for GUEST customer details.
-            // This entire section is only visible when 'is_guest' is TRUE.
             Forms\Components\Section::make(__('order.sections.guest_customer.label'))
                 ->schema([
-                    // Use dot notation to map these fields to the `guest_customer` JSON column.
                     Forms\Components\TextInput::make('guest_customer.name')
                         ->label(__('order.fields.guest_customer.name.label'))
                         ->placeholder(__('order.fields.guest_customer.name.placeholder'))
                         ->required(fn(Get $get) => $get('is_guest')),
-
                     Forms\Components\TextInput::make('guest_customer.email')
                         ->label(__('order.fields.guest_customer.email.label'))
                         ->placeholder(__('order.fields.guest_customer.email.placeholder'))
                         ->email(),
-
                     Forms\Components\TextInput::make('guest_customer.phone')
                         ->label(__('order.fields.guest_customer.phone.label'))
                         ->placeholder(__('order.fields.guest_customer.phone.placeholder'))
@@ -484,11 +468,9 @@ class OrderResource extends Resource
     public static function getItemsRepeater()
     {
         return [
-
             Forms\Components\Repeater::make('items')
+                ->relationship() // <-- *** التعديل الأهم هنا ***
                 ->hiddenLabel()
-                //->collapsed(fn($record) => $record)
-                // ->relationship('items')
                 ->label(__('order.fields.items.label'))
                 ->itemLabel(__('order.fields.items.item_label'))
                 ->schema([
@@ -498,14 +480,14 @@ class OrderResource extends Resource
                         ->options(
                             Product::whereHas('branches', function ($query) {
                                 $query->where('branches.id', Filament::getTenant()->id);
-                            })->get()->mapWithKeys(function (Product $product) {
-                                return [$product->id => sprintf('%s - %s ($%s)', $product->name, $product->category?->name, $product->price)];
-                            })
+                            })->pluck('name', 'id')
                         )
                         ->required()
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                            $set('price', Product::find($state)?->price ?? 0);
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, Forms\Set $set) {
+                            $product = Product::find($state);
+                            $set('price', $product?->price ?? 0);
+                            $set('description', $product?->description ?? '');
                         })
                         ->distinct()
                         ->disableOptionsWhenSelectedInSiblingRepeaterItems()
@@ -523,8 +505,7 @@ class OrderResource extends Resource
                         ->placeholder(__('order.fields.items.price.placeholder'))
                         ->columnSpan(3)
                         ->default(0)
-                        ->hint(fn($state) => number_format($state))
-                        ->hintColor('info')
+                        ->live(onBlur: true)
                         ->numeric(),
                     Forms\Components\TextInput::make('qty')
                         ->live(onBlur: true)
@@ -542,7 +523,6 @@ class OrderResource extends Resource
                         ->numeric()
                         ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? __('order.fields.items.sub_discount.hint_error') : null)
                         ->hintColor('info'),
-
                     Forms\Components\TextInput::make('sub_total')
                         ->label(__('order.fields.items.sub_total.label'))
                         ->placeholder(__('order.fields.items.sub_total.placeholder'))
@@ -552,12 +532,13 @@ class OrderResource extends Resource
                         ->dehydrated(true)
                         ->numeric(),
                 ])
-                ->lazy()
+                ->live(onBlur: true)
                 ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
                     self::calculate($get, $set);
                 })
                 ->columns(12)
                 ->columnSpanFull(),
+
             Forms\Components\Section::make(__('order.sections.totals.label'))
                 ->schema([
                     Forms\Components\TextInput::make('shipping')
@@ -572,17 +553,6 @@ class OrderResource extends Resource
                         ->numeric()
                         ->minValue(0)
                         ->default(0),
-
-                    /*Forms\Components\TextInput::make('install')
-                        ->label(__('order.fields.installation.label'))
-                        ->placeholder(__('order.fields.installation.placeholder'))
-                        ->numeric()
-                        ->lazy()
-                        ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
-                            self::calculate($get, $set);
-                        })
-                        ->default(0),*/
-
                     Forms\Components\TextInput::make('discount')
                         ->label(__('order.fields.items.discount.label'))
                         ->placeholder(__('order.fields.items.discount.placeholder'))
@@ -615,49 +585,27 @@ class OrderResource extends Resource
         $items = $get('items') ?? [];
         $total = 0;
         $discount = 0;
-        $collectItems = [];
-        foreach ($items as $invoiceItem) {
-            $quantity = (float) $invoiceItem['qty'] ?? 0;
-            $unitPrice = (float) $invoiceItem['price'] ?? 0;
-            $discount_ = (float) $invoiceItem['sub_discount'] ?? 0;
-            $getTotal = (($unitPrice  - $discount_) * $quantity);
-            $invoiceItem['sub_total'] = $getTotal;
+        $recalculatedItems = [];
+        foreach ($items as $item) {
+            $quantity = (float)($item['qty'] ?? 1);
+            $unitPrice = (float)($item['price'] ?? 0);
+            $itemDiscount = (float)($item['sub_discount'] ?? 0);
 
-            $total += $getTotal;
-            $discount += ($discount_ * $quantity);
+            $subTotal = ($unitPrice - $itemDiscount) * $quantity;
+            $item['sub_total'] = $subTotal;
 
-            $collectItems[] = $invoiceItem;
+            $total += $subTotal;
+            $discount += ($itemDiscount * $quantity);
+
+            $recalculatedItems[] = $item;
         }
-        $shipping = (float) $get('shipping') ?? 0;
-        //$install = (float) $get('install') ?? 0;
+
+        // This is needed to update the sub_total in the UI
+        $set('items', $recalculatedItems);
+
+        $shipping = (float)($get('shipping') ?? 0);
 
         $set('discount', $discount);
-        $set('total', $total + $shipping - $discount);
-
-        $set('items', $collectItems);
-        //dd($collectItems);
-    }
-
-    public static function calculateInRepeter(Forms\Get $get, Forms\Set $set)
-    {
-        $items = $get('items');
-        $total = 0;
-        $collectItems = [];
-
-        foreach ($items as $invoiceItem) {
-            $quantity = (float) $invoiceItem['qty'] ?? 0;
-            $unitPrice = (float) $invoiceItem['price'] ?? 0;
-            $discount_ = (float) $invoiceItem['sub_discount'] ?? 0;
-            $getTotal = ($unitPrice  - $discount_) * $quantity;
-            $invoiceItem['sub_total'] = $getTotal;
-
-            $total += $getTotal;
-        }
-        $set('items', $collectItems);
-
-        $shipping = (float) $get('shipping') ?? 0;
-        // $install = (float) $get('install') ?? 0;
-
         $set('total', $total + $shipping);
     }
 }

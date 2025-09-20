@@ -121,7 +121,6 @@
                             </div>
                         </div>
                         <div class="flex flex-col gap-4 divide-y divide-gray-100 dark:divide-white/5">
-                            {{ $this->getRecord()->items }}
                             @foreach ($this->getRecord()->items as $key => $item)
                                 <div class="flex justify-between px-4 py-2">
                                     <div class="flex flex-col w-full">
@@ -153,7 +152,7 @@
                                                     <div class="flex justify-between">
                                                         <span
                                                             class="text-sm text-gray-400 uppercase w-full">{{ trans('filament-invoices::messages.invoices.view.qty') }}:</span>
-                                                        <span class="w-full">
+                                                        <span class="w-full text-l">
                                                             {{ $item->qty }}
                                                         </span>
                                                         <span class="w-full">
@@ -264,7 +263,7 @@
                                     {{ trans('filament-invoices::messages.invoices.view.signature') }}
                                 </div>
                                 <div class="text-sm text-gray-400">
-                                    <div>
+                                    {{-- <div>
                                         {{ $this->getRecord()->branch?->name }}
                                     </div>
                                     <div>
@@ -272,7 +271,7 @@
                                     </div>
                                     <div>
                                         {{ $this->getRecord()->billedFrom?->phone }}
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -282,7 +281,7 @@
                                     {{ trans('order.invoice.labels.subtotal') }}
                                 </div>
                                 <div>
-                                    {{ number_format($this->getRecord()->total + $this->getRecord()->discount - ($this->getRecord()->install + $this->getRecord()->shipping), 2) }}
+                                    {{ number_format($this->getRecord()->total + $this->getRecord()->discount - ( $this->getRecord()->shipping), 2) }}
                                     <small class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
