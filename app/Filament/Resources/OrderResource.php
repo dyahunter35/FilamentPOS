@@ -248,6 +248,7 @@ class OrderResource extends Resource
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
+                            
                             ->hint(fn($state) => number_format($state))
                             ->maxValue(fn($record)=>$record->total - $record->paid)
                             ->minValue(1)
