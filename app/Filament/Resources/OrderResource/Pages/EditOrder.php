@@ -92,19 +92,19 @@ class EditOrder extends EditRecord
 
             if ($newItemsFromDB->isEmpty()) {
                 Notification::make()->title(__('order.actions.create.notifications.at_least_one'))->warning()->send();
-                throw new Halt();
+                //throw new Halt();
             }
 
             foreach ($newItemsFromDB as $newItem) {
                 $product = Product::find($newItem->product_id);
-                if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $newItem->qty)) {
+                /* if (!$inventoryService->isAvailableInBranch($product, $currentBranch, $newItem->qty)) {
                     Notification::make()
                         ->title(__('order.actions.create.notifications.stock.title'))
                         ->body(__('order.actions.create.notifications.stock.message', ['product' => $product->name]))
                         ->danger()
                         ->send();
                     throw new Halt('Stock not available, transaction rolled back.');
-                }
+                } */
 
                 $inventoryService->deductStockForBranch(
                     $product,

@@ -11,6 +11,9 @@
                             <div class="text-sm text-gray-400  mt-3">
                                 {{ trans('filament-invoices::messages.invoices.view.bill_from') }}:
                             </div>
+                             <div class="text-2xl font-bold">
+                                {{ config('app.name') }}
+                            </div>
                             <div class="text-lg font-bold">
                                 {{ $this->getRecord()->branch->name }}
                             </div>

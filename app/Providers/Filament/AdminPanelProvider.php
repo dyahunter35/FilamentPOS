@@ -40,6 +40,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseTransactions()
             ->databaseNotifications()
             ->brandName(config('app.name'))
+
             /* ->colors([
                 'primary' => [
                     'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق
@@ -75,7 +76,6 @@ class AdminPanelProvider extends PanelProvider
                 "brand-secondary-light" => "#817F8A",
             ]) */
             // ->viteTheme('resources/css/filament/site/theme.css')
-
             //->favicon(asset('images/favicon.ico'))
             //->brandLogo(asset('asset/images/logo/gas 200.png'))
             //->registration()
