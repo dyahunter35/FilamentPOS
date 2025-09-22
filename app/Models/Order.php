@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Casts\GuestCustomer;
 use App\Enums\OrderStatus;
+use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,11 +37,9 @@ class Order extends Model
         'updated_at'
     ];
 
-
     protected $casts = [
         'status' => OrderStatus::class,
         'guest_customer' => GuestCustomer::class,
-
     ];
 
     public function branch(): BelongsTo
@@ -65,13 +64,13 @@ class Order extends Model
         return $this->hasMany(OrderLog::class);
     }
 
-     /** @return BelongsTo<Customer,self> */
-     public function caused(): BelongsTo
-     {
-         return $this->belongsTo(User::class,'caused_by');
-     }
+    /** @return BelongsTo<Customer,self> */
+    public function caused(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'caused_by');
+    }
 
-      /**
+    /**
      * Define the relationship to a registered customer.
      */
     public function registeredCustomer(): BelongsTo
@@ -127,9 +126,10 @@ class Order extends Model
         $prefix = 'INV-';
         $year = date('Y');
         $month = date('m');
+        $branch_id = Filament::getTenant()->id;
 
         $lastInvoice = self::whereYear('created_at', $year)
-
+            ->where('branch_id', $branch_id )
             ->whereMonth('created_at', $month)
             ->orderBy('id', 'desc')
             ->withoutGlobalScope(SoftDeletingScope::class)

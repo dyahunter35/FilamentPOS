@@ -98,7 +98,7 @@ class OrderResource extends Resource
                                     ->default(0)
                                     ->hint(fn($state) => number_format($state))
                                     ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set)),
-                                Forms\Components\TextInput::make('installation')
+                                Forms\Components\TextInput::make('install')
                                     ->label(__('order.fields.installation.label'))
                                     ->live(onBlur: true)
                                     ->numeric()
@@ -587,7 +587,7 @@ class OrderResource extends Resource
         $totalItemsPrice = $items->sum('sub_total');
 
         $shipping = (float)($get('shipping') ?? 0);
-        $installation = (float)($get('installation') ?? 0);
+        $installation = (float)($get('install') ?? 0);
 
         $set('discount', $totalDiscount);
         $set('total', $totalItemsPrice + $installation + $shipping);
