@@ -231,6 +231,13 @@ class ProductResource extends Resource
                     ->sortable()
                     ->toggleable(), */
 
+                Tables\Columns\TextColumn::make('security_stock')
+                    ->label(__('product.columns.security_stock.label'))
+                    ->searchable()
+                    ->sortable()
+                   // ->visible(fn() => !auth()->user()->hasRole('بائع'))
+                    ->toggleable(),
+
                 Tables\Columns\TextColumn::make('stock_for_current_branch')
                     ->label(__('product.columns.quantity.label'))
                     ->searchable()
@@ -251,12 +258,6 @@ class ProductResource extends Resource
                     ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('security_stock')
-                    ->label(__('product.columns.security_stock.label'))
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable()
-                    ->toggledHiddenByDefault(),
 
                 Tables\Columns\TextColumn::make('published_at')
                     ->label(__('product.columns.publish_date.label'))

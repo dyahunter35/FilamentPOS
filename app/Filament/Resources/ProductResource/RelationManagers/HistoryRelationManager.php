@@ -132,6 +132,8 @@ class HistoryRelationManager extends RelationManager
                             }
                         }
                         $inventoryService->updateAllBranches();
+                        if (($product->total_stock > $product->security_stock) && $product->low_stock_notified_at)
+                            $product->update('low_stock_notified_at', null);
                     }),
             ])
             ->actions([

@@ -41,11 +41,11 @@ class CheckStockLevels extends Command
             ->whereNull('low_stock_notified_at')
             ->get();
 
+        $allUsers = User::whereRoleIs('مدير')->get();
 
         if ($lowStockProducts->isNotEmpty()) {
 
             $this->info("Found {$lowStockProducts->count()} products with low stock.");
-            $allUsers = User::where('email','dyahunter35@gmail.com')->get();
 
             foreach ($lowStockProducts as $product) {
                 // Send notification to all users
@@ -64,7 +64,6 @@ class CheckStockLevels extends Command
                 // Send a single summary email to the user
                 Mail::to($user)->send(new LowStockSummaryMail($lowStockProducts));
                 $this->line("Email Send : {$user->email} .");
-
             }
 
             $this->line("Notifications and emails sent to {$allUsers->count()} users.");
