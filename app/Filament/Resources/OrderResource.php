@@ -148,10 +148,15 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('order.fields.created_at.label'))
+                    ->date()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('number')
                     ->label(__('order.fields.number.label'))
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label(__('order.fields.customer.label'))
                     ->searchable()
@@ -166,33 +171,45 @@ class OrderResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
+
                 Tables\Columns\TextColumn::make('total')
                     ->label(__('order.fields.total.label'))
                     ->searchable()
-                    ->money(fn($record) => $record->currency)
                     ->sortable()
+                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
+                    ->toggleable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
-                            ->money(fn($record) => $record->currency),
+                            ->money()
+                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
                     ]),
+
                 Tables\Columns\TextColumn::make('paid')
                     ->label(__('order.fields.paid.label'))
-                    ->money(fn($record) => $record->currency),
+                    ->searchable()
+                    ->sortable()
+                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
+                    ->toggleable()
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money()
+                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
+                    ]),
 
                 Tables\Columns\TextColumn::make('shipping')
                     ->label(__('order.fields.shipping.label'))
                     ->searchable()
                     ->sortable()
-                    ->money(fn($record) => $record->currency)
+                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
                     ->toggleable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
-                            ->money(fn($record) => $record->currency),
-                    ]),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label(__('order.fields.created_at.label'))
-                    ->date()
-                    ->toggleable(),
+                            ->money()
+                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
+                    ])->toggleable(isToggledHiddenByDefault: true),
+
+
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make()
@@ -262,10 +279,7 @@ class OrderResource extends Resource
                             ->numeric(),
                     ])
                     ->action(function (array $data, Order $record) {
-                        if ($data['amount'] <= 0) {
-                            Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
-                            return;
-                        }
+
                         $record->update([
                             'paid' => $record->paid + $data['amount']
                         ]);

@@ -248,6 +248,7 @@ class ProductResource extends Resource
                     ->label(__('product.columns.all_branches_quantity.label'))
                     ->searchable()
                     ->sortable()
+                    ->color(fn($record)=> $record->total_stock > $record->security_stock? 'success':'danger')
                     ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->toggleable(),
 
@@ -257,7 +258,6 @@ class ProductResource extends Resource
                     ->badge()
                     ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->sortable(),
-
 
                 Tables\Columns\TextColumn::make('published_at')
                     ->label(__('product.columns.publish_date.label'))
