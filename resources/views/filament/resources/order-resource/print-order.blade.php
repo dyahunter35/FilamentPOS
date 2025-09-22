@@ -300,6 +300,16 @@
 
                             <div class="flex justify-between">
                                 <div class="font-bold">
+                                    {{ trans('order.fields.installation.label') }}
+                                </div>
+                                <div>
+                                    {{ number_format($this->getRecord()->installation, 2) }} <small
+                                        class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <div class="font-bold">
                                     {{ trans('filament-invoices::messages.invoices.view.discount') }}
                                 </div>
                                 <div>

@@ -105,12 +105,10 @@ class OrderMetasRelationManager extends RelationManager
                             ->numeric()
                             ->maxValue($this->ownerRecord->total - $this->ownerRecord->paid)
                             ->minValue(1)
+                            
                     ])
                     ->action(function (array $data, Order $ownerRecord) {
-                        if ($data['amount'] >= $ownerRecord->total - $ownerRecord->paid || $data['amount'] <= 0) {
-                            Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
-                            return;
-                        }
+
                         $this->ownerRecord->update([
                             'paid' => $this->ownerRecord->paid + $data['amount']
                         ]);

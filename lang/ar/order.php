@@ -13,8 +13,15 @@ return [
         'edit' => 'تعديل طلب',
     ],
     'sections' => [
+        'details' => [
+            'label' => 'بيانات العميل',
+        ],
+
         'guest_customer' => [
             'label' => 'بيانات العميل الزائر',
+        ],
+        'status_and_totals' => [
+            'label' => 'الحالة',
         ],
         'order_items' => [
             'label' => 'بنود الطلب',
@@ -125,11 +132,11 @@ return [
             'placeholder' => 'أدخل تكلفة الشحن',
         ],
         'installation' => [
-            'label' => 'تكلفة التركيب',
-            'placeholder' => 'أدخل تكلفة التركيب',
+            'label' => 'تكلفة العتالة',
+            'placeholder' => 'أدخل تكلفة العتالة',
         ],
         'created_at' => [
-            'label' => 'تاريخ الإنشاء',
+            'label' => 'تاريخ الفاتورة',
             'placeholder' => '',
         ],
         'updated_at' => [

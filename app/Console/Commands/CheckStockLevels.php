@@ -43,30 +43,37 @@ class CheckStockLevels extends Command
 
 
         if ($lowStockProducts->isNotEmpty()) {
-            $this->info("Found {$lowStockProducts->count()} products with low stock.");
-            $allUsers = User::all();
 
-            // Send notifications and emails
-            foreach($allUsers as $user) {
-                // Send a single database notification with a summary
+            $this->info("Found {$lowStockProducts->count()} products with low stock.");
+            $allUsers = User::where('email','dyahunter35@gmail.com')->get();
+
+            foreach ($lowStockProducts as $product) {
+                // Send notification to all users
                 Notification::make()
                     ->title('تنبيه انخفاض المخزون')
-                    ->body("يوجد {$lowStockProducts->count()} منتجات وصلت إلى حد المخزون الآمن.")
+                    ->body("المنتج '{$product->name}' وصل إلى حد المخزون الآمن. الكمية الحالية: {$product->total_stock}")
                     ->danger()
-                    ->sendToDatabase($user);
+                    ->sendToDatabase($allUsers);
 
+                // Mark the product as notified to prevent spam
+                $this->line("Notification sent for product: {$product->name}");
+                Log::info("Low stock notification sent for Product ID: {$product->id}");
+            }
+            // Send notifications and emails
+            foreach ($allUsers as $user) {
                 // Send a single summary email to the user
                 Mail::to($user)->send(new LowStockSummaryMail($lowStockProducts));
+                $this->line("Email Send : {$user->email} .");
+
             }
 
             $this->line("Notifications and emails sent to {$allUsers->count()} users.");
 
             // Mark all products as notified in a single query for efficiency
             Product::whereIn('id', $lowStockProducts->pluck('id'))
-                   ->update(['low_stock_notified_at' => now()]);
+                ->update(['low_stock_notified_at' => now()]);
 
             Log::info("Low stock notifications sent for Product IDs: " . $lowStockProducts->pluck('id')->implode(', '));
-
         } else {
             $this->info('No new low-stock products found.');
         }
@@ -87,4 +94,3 @@ class CheckStockLevels extends Command
         return self::SUCCESS;
     }
 }
-

@@ -35,9 +35,9 @@ class OrderResource extends Resource
 {
     protected static ?string $model = Order::class;
     protected static bool $isScopedToTenant = true;
-
-
     protected static ?string $recordTitleAttribute = 'number';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?int $navigationSort = 5;
 
     public static function getModelLabel(): string
     {
@@ -59,22 +59,21 @@ class OrderResource extends Resource
         return __('order.navigation.group');
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
-    protected static ?int $navigationSort = 5;
-
     public static function form(Form $form): Form
     {
-
         return $form
             ->schema([
                 Forms\Components\Group::make()
                     ->schema([
-
-                        Forms\Components\Section::make()
-                            ->schema(static::getDetailsFormSchema())
+                        // Order details section
+                        Section::make(__('order.sections.details.label'))
+                            ->icon('heroicon-o-user')
+                            ->schema(self::getDetailsFormSchema())
                             ->columns(2),
 
-                        Forms\Components\Section::make(__('order.sections.order_items.label'))
+                        // Order items repeater section
+                        Section::make(__('order.sections.order_items.label'))
+                            ->icon('heroicon-o-shopping-bag')
                             ->headerActions([
                                 Action::make('reset')
                                     ->label(__('order.actions.reset.label'))
@@ -84,43 +83,62 @@ class OrderResource extends Resource
                                     ->color('danger')
                                     ->action(fn(Forms\Set $set) => $set('items', [])),
                             ])
-                            ->schema(
-                                static::getItemsRepeater(),
-                            ),
-                    ])
-                    ->columnSpan(['lg' =>  2]),
+                            ->schema([self::getItemsRepeater()]),
 
-                Forms\Components\Section::make()
-                    ->schema([
+                        Section::make(__('order.sections.totals.label'))
+                            ->icon('heroicon-o-banknotes')
+                            ->schema([
+                                Forms\Components\TextInput::make('shipping')
+                                    ->label(__('order.fields.shipping.label'))
+                                    ->live(onBlur: true)
+                                    ->numeric()
+                                    ->inputMode('decimal')
+                                    ->step('0.01')
+                                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
+                                    ->default(0)
+                                    ->hint(fn($state) => number_format($state))
+                                    ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set)),
+                                Forms\Components\TextInput::make('installation')
+                                    ->label(__('order.fields.installation.label'))
+                                    ->live(onBlur: true)
+                                    ->numeric()
+                                    ->inputMode('decimal')
+                                    ->step('0.01')
+                                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
+                                    ->hint(fn($state) => number_format($state))
 
-                        Forms\Components\ToggleButtons::make('status')
-                            ->label(__('order.fields.status.label'))
-                            ->inline()
-                            ->options(OrderStatus::class)
-                            ->default(OrderStatus::New)
-                            ->required(),
-
-                        Forms\Components\Select::make('currency')
-                            ->label(__('order.fields.currency.label'))
-                            ->placeholder(__('order.fields.currency.placeholder'))
-                            ->searchable()
-                            ->default('SDG')
-                            ->options([
-                                'SDG' => 'SDG',
-                                'USD' => 'USD',
+                                    ->minValue(0)
+                                    ->default(0)
+                                    ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set)),
+                                Forms\Components\TextInput::make('discount')
+                                    ->hint(fn($state) => number_format($state))
+                                    ->label(__('order.fields.items.discount.label'))
+                                    ->disabled()
+                                    ->dehydrated(true)
+                                    ->hint(fn($state) => number_format($state))
+                                    ->numeric()
+                                    ->default(0),
+                                Forms\Components\TextInput::make('total')
+                                    ->label(__('order.fields.total.label'))
+                                    ->hint(fn($state) => number_format($state))
+                                    ->disabled()
+                                    ->dehydrated(true)
+                                    ->hint(fn($state) => number_format($state))
+                                    ->numeric()
+                                    ->default(0),
+                                Forms\Components\Textarea::make('notes')
+                                    ->label(__('order.fields.notes.label'))
+                                    ->columnSpanFull(),
                             ])
-                            ->required(),
+                            ->columns(2)
+                            ->collapsible(),
 
-                        Forms\Components\Placeholder::make('created_at')
-                            ->label(__('order.fields.created_at.label'))
-                            ->content(fn(Order $record): ?string => $record->created_at?->diffForHumans())
-                            ->hidden(fn(?Order $record) => $record === null),
-
-                        Forms\Components\Placeholder::make('updated_at')
-                            ->label(__('order.fields.updated_at.label'))
-                            ->content(fn(Order $record): ?string => $record->updated_at?->diffForHumans())
-                            ->hidden(fn(?Order $record) => $record === null),
                     ])
+                    ->columnSpan(['lg' => 2]),
+
+                // Status and totals section
+                Section::make(__('order.sections.status_and_totals.label'))
+                    ->schema(self::getStatusAndTotalsFormSchema())
                     ->columnSpan(['lg' => 1]),
             ])
             ->columns(3);
@@ -137,7 +155,7 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('customer.name')
                     ->label(__('order.fields.customer.label'))
                     ->searchable()
-                    ->formatStateUsing(fn($state,$record) => ($record->is_guest)  ? $state . '  '.__('customer.guest_suffix'): $state)
+                    ->formatStateUsing(fn($state, $record) => ($record->is_guest) ? $state . '  ' . __('customer.guest_suffix') : $state)
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('status')
@@ -151,25 +169,25 @@ class OrderResource extends Resource
                 Tables\Columns\TextColumn::make('total')
                     ->label(__('order.fields.total.label'))
                     ->searchable()
-                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
+                    ->money(fn($record) => $record->currency)
                     ->sortable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
-                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
+                            ->money(fn($record) => $record->currency),
                     ]),
                 Tables\Columns\TextColumn::make('paid')
-                    ->label(__('order.fields.paid.label')),
+                    ->label(__('order.fields.paid.label'))
+                    ->money(fn($record) => $record->currency),
+
                 Tables\Columns\TextColumn::make('shipping')
                     ->label(__('order.fields.shipping.label'))
                     ->searchable()
                     ->sortable()
-                    ->formatStateUsing(fn($state) => (string)number_format($state, 2))
+                    ->money(fn($record) => $record->currency)
                     ->toggleable()
                     ->summarize([
                         Tables\Columns\Summarizers\Sum::make()
-                            ->money()
-                            ->formatStateUsing(fn($state) => (string)number_format($state, 2)),
-
+                            ->money(fn($record) => $record->currency),
                     ]),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label(__('order.fields.created_at.label'))
@@ -179,40 +197,30 @@ class OrderResource extends Resource
             ->filters([
                 Tables\Filters\TrashedFilter::make()
                     ->visible(auth()->user()->can('restore_order')),
-
                 Tables\Filters\Filter::make('created_at')
                     ->form([
                         Forms\Components\DatePicker::make('created_from')
-                            ->placeholder(fn($state): string => 'Dec 18, ' . now()->subYear()->format('Y')),
+                            ->placeholder('Dec 18, ' . now()->subYear()->format('Y')),
                         Forms\Components\DatePicker::make('created_until')
-                            ->placeholder(fn($state): string => now()->format('M d, Y')),
+                            ->placeholder(now()->format('M d, Y')),
                     ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'] ?? null,
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    })
+                    ->query(fn(Builder $query, array $data): Builder => $query
+                        ->when($data['created_from'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date))
+                        ->when($data['created_until'], fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date)))
                     ->indicateUsing(function (array $data): array {
                         $indicators = [];
-                        if ($data['created_from'] ?? null) {
+                        if (isset($data['created_from'])) {
                             $indicators['created_from'] = 'Order from ' . Carbon::parse($data['created_from'])->toFormattedDateString();
                         }
-                        if ($data['created_until'] ?? null) {
+                        if (isset($data['created_until'])) {
                             $indicators['created_until'] = 'Order until ' . Carbon::parse($data['created_until'])->toFormattedDateString();
                         }
-
                         return $indicators;
                     }),
             ])
             ->actions([
                 Tables\Actions\Action::make('pay')
-                    ->visible(fn($record) => ($record->total != $record->paid) || $record->status === OrderStatus::Processing || $record->status === OrderStatus::New)
+                    ->visible(fn($record) => $record->total != $record->paid || $record->status === OrderStatus::Processing || $record->status === OrderStatus::New)
                     ->requiresConfirmation()
                     ->icon('heroicon-o-credit-card')
                     ->label(__('order.actions.pay.label'))
@@ -243,22 +251,18 @@ class OrderResource extends Resource
                             ->required()
                             ->default(Payment::Cash)
                             ->options(Payment::class),
-
                         Forms\Components\TextInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
-                            
-                            ->hint(fn($state) => number_format($state))
-                            ->maxValue(fn($record)=>$record->total - $record->paid)
+                            ->maxValue(fn($record) => $record->total - $record->paid)
                             ->minValue(1)
                             ->hint(fn($state) => number_format($state))
                             ->hintColor('info')
                             ->numeric(),
                     ])
                     ->action(function (array $data, Order $record) {
-
-                        if ($data['amount'] >= $record->total - $record->paid || $data['amount'] <= 0) {
+                        if ($data['amount'] <= 0) {
                             Notification::make()->body('المبلغ غير صحيح الرجاء التأكد')->send();
                             return;
                         }
@@ -278,9 +282,7 @@ class OrderResource extends Resource
                         ]);
 
                         if ($record->total === $record->paid) {
-                            $record->update([
-                                'status' => OrderStatus::Payed
-                            ]);
+                            $record->update(['status' => OrderStatus::Payed]);
                         }
 
                         Notification::make()
@@ -289,17 +291,14 @@ class OrderResource extends Resource
                             ->success()
                             ->send();
                     }),
-
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make()
                     ->visible(fn($record) => !$record->deleted_at),
                 Tables\Actions\DeleteAction::make()
                     ->visible(fn($record) => !$record->deleted_at),
-
                 Tables\Actions\RestoreAction::make()
                     ->requiresConfirmation()
                     ->visible(fn($record) => $record->deleted_at && auth()->user()->can('restore_order')),
-
                 Tables\Actions\Action::make('forceDeleteItem')
                     ->label('حذف نهائي')
                     ->requiresConfirmation()
@@ -307,8 +306,8 @@ class OrderResource extends Resource
                     ->color('danger')
                     ->icon('heroicon-o-trash')
                     ->visible(fn($record) => $record->deleted_at && auth()->user()->can('force_delete_order')),
-
-            ])->defaultSort('created_at', 'desc')
+            ])
+            ->defaultSort('created_at', 'desc')
             ->groupedBulkActions([
                 Tables\Actions\BulkAction::make('forceDelete')
                     ->label('حذف نهائي للمحدد')
@@ -318,8 +317,7 @@ class OrderResource extends Resource
                     ->icon('heroicon-o-trash')
                     ->visible(fn() => auth()->user()->can('force_delete_any_order')),
                 Tables\Actions\DeleteBulkAction::make()
-                    ->requiresConfirmation()
-
+                    ->requiresConfirmation(),
             ])
             ->groups([
                 Tables\Grouping\Group::make('created_at')
@@ -344,7 +342,6 @@ class OrderResource extends Resource
         ];
     }
 
-
     public static function getPages(): array
     {
         return [
@@ -359,8 +356,7 @@ class OrderResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->withoutGlobalScope(SoftDeletingScope::class)
-        ;
+            ->withoutGlobalScope(SoftDeletingScope::class);
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -370,8 +366,6 @@ class OrderResource extends Resource
 
     public static function getGlobalSearchResultDetails(Model $record): array
     {
-        /** @var Order $record */
-
         return [
             __('order.fields.customer.label') => optional($record->registeredCustomer)->name,
             __('order.fields.items.total.label') => number_format($record->total, 0),
@@ -386,12 +380,11 @@ class OrderResource extends Resource
 
     public static function getNavigationBadge(): ?string
     {
-        /** @var class-string<Model> $modelClass */
         $modelClass = static::$model;
-
         return (string) $modelClass::where('status', 'new')->where('branch_id', Filament::getTenant()->id)->count();
     }
 
+    // New method to clean up the form's details section
     public static function getDetailsFormSchema(): array
     {
         return [
@@ -424,210 +417,165 @@ class OrderResource extends Resource
                 ->createOptionForm([
                     Forms\Components\TextInput::make('name')
                         ->label(__('customer.fields.name.label'))
-                        ->placeholder(__('customer.fields.name.placeholder'))
                         ->required()
                         ->maxLength(255),
                     Forms\Components\TextInput::make('email')
                         ->label(__('customer.fields.email.label'))
-                        ->placeholder(__('customer.fields.email.placeholder'))
                         ->email()
                         ->maxLength(255)
                         ->unique(),
                     Forms\Components\TextInput::make('phone')
                         ->label(__('customer.fields.phone.label'))
-                        ->placeholder(__('customer.fields.phone.placeholder'))
                         ->maxLength(255),
                     Forms\Components\Hidden::make('branch_id')
                         ->default(Filament::getTenant()->id),
                 ])
-                ->createOptionAction(function (Action $action) {
-                    return $action
-                        ->modalHeading(__('customer.actions.create.modal.heading'))
-                        ->modalSubmitActionLabel(__('customer.actions.create.modal.submit'))
-                        ->modalWidth('lg');
-                }),
+                ->createOptionAction(fn(Action $action) => $action
+                    ->modalHeading(__('customer.actions.create.modal.heading'))
+                    ->modalSubmitActionLabel(__('customer.actions.create.modal.submit'))
+                    ->modalWidth('lg')),
 
             Forms\Components\Section::make(__('order.sections.guest_customer.label'))
                 ->schema([
                     Forms\Components\TextInput::make('guest_customer.name')
                         ->label(__('order.fields.guest_customer.name.label'))
-                        ->placeholder(__('order.fields.guest_customer.name.placeholder'))
                         ->required(fn(Get $get) => $get('is_guest')),
                     Forms\Components\TextInput::make('guest_customer.email')
                         ->label(__('order.fields.guest_customer.email.label'))
-                        ->placeholder(__('order.fields.guest_customer.email.placeholder'))
                         ->email(),
                     Forms\Components\TextInput::make('guest_customer.phone')
                         ->label(__('order.fields.guest_customer.phone.label'))
-                        ->placeholder(__('order.fields.guest_customer.phone.placeholder'))
                         ->tel()
                         ->prefix('+'),
-                ])->columns([
-                    'lg' => 3,
-                    'md' => 2,
-                ])
+                ])->columns(3)
                 ->visible(fn(Get $get) => $get('is_guest')),
         ];
     }
 
-    public static function getItemsRepeater()
+    // New method to clean up the form's totals section
+    public static function getStatusAndTotalsFormSchema(): array
     {
         return [
-            Forms\Components\Repeater::make('items')
-                ->relationship() // <-- *** التعديل الأهم هنا ***
-                ->hiddenLabel()
-                ->label(__('order.fields.items.label'))
-                ->itemLabel(__('order.fields.items.item_label'))
-                ->schema([
-                    Forms\Components\Select::make('product_id')
-                        ->label(__('order.fields.items.product.label'))
-                        ->placeholder(__('order.fields.items.product.placeholder'))
-                        ->options(
+            Forms\Components\DatePicker::make('created_at')
+                ->label(__('order.fields.created_at.label'))
+                ->default(now()),
+            Forms\Components\ToggleButtons::make('status')
+                ->label(__('order.fields.status.label'))
+                ->inline()
+                ->options(OrderStatus::class)
+                ->default(OrderStatus::New)
+                ->required(),
+            Forms\Components\Select::make('currency')
+                ->label(__('order.fields.currency.label'))
+                ->searchable()
+                ->default('SDG')
+                ->options([
+                    'SDG' => 'SDG',
+                    'USD' => 'USD',
+                ])
+                ->required(),
+        ];
+    }
 
-                            Product::whereHas('branches', function ($query) {
-
-                                $query->where('branches.id', Filament::getTenant()->id);
-                            })->get()->mapWithKeys(function (Product $product) {
-
-                                return [$product->id =>
-                                sprintf(
+    // New method to clean up the form's repeater logic
+    public static function getItemsRepeater(): Forms\Components\Repeater
+    {
+        return Forms\Components\Repeater::make('items')
+            ->relationship()
+            ->hiddenLabel()
+            ->label(__('order.fields.items.label'))
+            ->itemLabel(fn(array $state): string => Product::find($state['product_id'])?->name ?? 'Order Item')
+            ->schema([
+                Forms\Components\Select::make('product_id')
+                    ->label(__('order.fields.items.product.label'))
+                    ->placeholder(__('order.fields.items.product.placeholder'))
+                    ->options(
+                        Product::whereHas('branches', fn($query) => $query->where('branches.id', Filament::getTenant()->id))
+                            ->get()
+                            ->mapWithKeys(fn(Product $product) => [
+                                $product->id => sprintf(
                                     '%s - %s ($%s) [%s]',
                                     $product->name,
                                     $product->category?->name,
                                     $product->price,
                                     $product->stock_for_current_branch
-                                )];
-                            })
-                        )
-                        ->required()
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(function ($state, Forms\Set $set) {
-                            $product = Product::find($state);
-                            $set('price', $product?->price ?? 0);
-                            $set('description', $product?->description ?? '');
-                            $set('stock', $product?->stock_for_current_branch ?? 0);
-                        })
-                        ->distinct()
-                        ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                        ->columnSpan([
-                            'md' => 6,
-                        ])
-                        ->searchable(),
-
-                    Forms\Components\TextInput::make('description')
-                        ->label(__('order.fields.items.description.label'))
-                        ->placeholder(__('order.fields.items.description.placeholder'))
-                        ->columnSpan(6),
-                    Forms\Components\TextInput::make('price')
-                        ->label(__('order.fields.items.price.label'))
-                        ->placeholder(__('order.fields.items.price.placeholder'))
-                        ->columnSpan(3)
-                        ->default(0)
-                        ->live(onBlur: true)
-                        ->numeric(),
-
-                    Forms\Components\TextInput::make('qty')
-                        ->live(onBlur: true)
-                        ->columnSpan(3)
-                        ->label(__('order.fields.items.qty.label'))
-                        ->placeholder(__('order.fields.items.qty.placeholder'))
-                        ->hint(fn(Forms\Get $get) => ($get('stock') ?? 0))
-                        ->hintColor('info')
-                        ->default(1)
-                        ->numeric(),
-
-                    Forms\Components\TextInput::make('sub_discount')
-                        ->label(__('order.fields.items.sub_discount.label'))
-                        ->placeholder(__('order.fields.items.sub_discount.placeholder'))
-                        ->columnSpan(3)
-                        ->default(0)
-                        ->live(onBlur: true)
-                        ->numeric()
-                        ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? __('order.fields.items.sub_discount.hint_error') : null)
-                        ->hintColor('info'),
-                    Forms\Components\TextInput::make('sub_total')
-                        ->label(__('order.fields.items.sub_total.label'))
-                        ->placeholder(__('order.fields.items.sub_total.placeholder'))
-                        ->columnSpan(3)
-                        ->hint(fn($state) => number_format($state))
-                        ->hintColor('success')
-                        ->dehydrated(true)
-                        ->numeric(),
-                ])
-                ->live(onBlur: true)
-                ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
-                    self::calculate($get, $set);
-                })
-                ->columns(12)
-                ->columnSpanFull(),
-
-            Forms\Components\Section::make(__('order.sections.totals.label'))
-                ->schema([
-                    Forms\Components\TextInput::make('shipping')
-                        ->label(__('order.fields.shipping.label'))
-                        ->placeholder(__('order.fields.shipping.placeholder'))
-                        ->live(onBlur: true)
-                        ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set) {
-                            self::calculate($get, $set);
-                        })
-                        ->hint(fn($state) => number_format($state))
-                        ->hintColor('info')
-                        ->numeric()
-                        ->minValue(0)
-                        ->default(0),
-                    Forms\Components\TextInput::make('discount')
-                        ->label(__('order.fields.items.discount.label'))
-                        ->placeholder(__('order.fields.items.discount.placeholder'))
-                        ->disabled()
-                        ->dehydrated(true)
-                        ->numeric()
-                        ->hint(fn($state) => number_format($state))
-                        ->hintColor('info')
-                        ->default(0),
-                    Forms\Components\TextInput::make('total')
-                        ->label(__('order.fields.total.label'))
-                        ->placeholder(__('order.fields.total.placeholder'))
-                        ->disabled()
-                        ->hint(fn($state) => number_format($state))
-                        ->hintColor('info')
-                        ->dehydrated(true)
-                        ->numeric()
-                        ->default(0),
-                    Forms\Components\Textarea::make('notes')
-                        ->label(__('order.fields.notes.label'))
-                        ->placeholder(__('order.fields.notes.placeholder'))
-                        ->columnSpanFull(),
-                ])->columns(4)
-                ->collapsible(),
-        ];
+                                )
+                            ])
+                    )
+                    ->required()
+                    ->disableOptionsWhenSelectedInSiblingRepeaterItems()
+                    ->columnSpan(['md' => 6])
+                    ->searchable(),
+                Forms\Components\TextInput::make('description')
+                    ->label(__('order.fields.items.description.label'))
+                    ->columnSpan(6),
+                Forms\Components\TextInput::make('price')
+                    ->label(__('order.fields.items.price.label'))
+                    ->hint(fn($state) => number_format($state))
+                    ->columnSpan(3)
+                    ->numeric()
+                    ->inputMode('decimal')
+                    ->step('0.01')
+                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/']),
+                Forms\Components\TextInput::make('qty')
+                    ->live(onBlur: true)
+                    ->hint(fn($state) => number_format($state))
+                    ->columnSpan(3)
+                    ->label(__('order.fields.items.qty.label'))
+                    ->hint(fn($state) => number_format($state))
+                    ->hintColor('info')
+                    ->numeric()
+                    ->inputMode('decimal')
+                    ->step('0.01')
+                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/', 'min:0.01']),
+                Forms\Components\TextInput::make('sub_discount')
+                    ->label(__('order.fields.items.sub_discount.label'))
+                    ->columnSpan(3)
+                    ->live(onBlur: true)
+                    ->hint(fn($state) => number_format($state))
+                    ->numeric()
+                    ->inputMode('decimal')
+                    ->step('0.01')
+                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
+                    ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? __('order.fields.items.sub_discount.hint_error') : null)
+                    ->hintColor('info'),
+                Forms\Components\TextInput::make('sub_total')
+                    ->label(__('order.fields.items.sub_total.label'))
+                    ->columnSpan(3)
+                    ->hint(fn($state) => number_format($state))
+                    ->hintColor('info')
+                    ->readOnly()
+                    ->dehydrated(true)
+                    ->numeric(),
+            ])
+            ->live(onBlur: true)
+            ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set))
+            ->columns(12)
+            ->columnSpanFull();
     }
 
-    public static function calculate(Forms\Get $get, Forms\Set $set)
+    public static function calculate(Forms\Get $get, Forms\Set $set): void
     {
-        $items = $get('items') ?? [];
-        $total = 0;
-        $discount = 0;
-        $recalculatedItems = [];
-        foreach ($items as $item) {
+        $items = collect($get('items') ?? [])->map(function ($item) {
             $quantity = (float)($item['qty'] ?? 1);
             $unitPrice = (float)($item['price'] ?? 0);
             $itemDiscount = (float)($item['sub_discount'] ?? 0);
 
-            $subTotal = ($unitPrice - $itemDiscount) * $quantity;
+            $subTotal = max(0, ($unitPrice - $itemDiscount)) * $quantity;
             $item['sub_total'] = $subTotal;
+            return $item;
+        });
 
-            $total += $subTotal;
-            $discount += ($itemDiscount * $quantity);
+        // Update the repeater items
+        $set('items', $items->toArray());
 
-            $recalculatedItems[] = $item;
-        }
-
-        // This is needed to update the sub_total in the UI
-        $set('items', $recalculatedItems);
+        $totalDiscount = $items->sum(fn($item) => (float)($item['sub_discount'] ?? 0) * (float)($item['qty'] ?? 1));
+        $totalItemsPrice = $items->sum('sub_total');
 
         $shipping = (float)($get('shipping') ?? 0);
+        $installation = (float)($get('installation') ?? 0);
 
-        $set('discount', $discount);
-        $set('total', $total + $shipping);
+        $set('discount', $totalDiscount);
+        $set('total', $totalItemsPrice + $installation + $shipping);
     }
 }

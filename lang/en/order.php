@@ -12,6 +12,9 @@ return [
         'edit' => 'Edit Order',
     ],
     'sections' => [
+        'details' => [
+            'label' => 'Customer Details',
+        ],
         'guest_customer' => [
             'label' => 'Guest Customer Details',
         ],
@@ -21,9 +24,11 @@ return [
                 'reset' => 'Reset Items',
             ],
         ],
+        'status_and_totals' => [
+            'label' => 'Status',
+        ],
+
         'totals' => [
-
-
             'label' => 'Order Totals',
         ]
     ],
@@ -131,11 +136,11 @@ return [
             'placeholder' => 'Enter shipping cost',
         ],
         'installation' => [
-            'label' => 'Installation Cost',
-            'placeholder' => 'Enter installation cost',
+            'label' => 'Handling charges',
+            'placeholder' => 'Loading and unloading charges',
         ],
         'created_at' => [
-            'label' => 'Created at',
+            'label' => 'Invoice Date',
             'placeholder' => '',
         ],
         'updated_at' => [
