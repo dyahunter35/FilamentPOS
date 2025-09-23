@@ -494,31 +494,45 @@ class OrderResource extends Resource
                     )
                     ->required()
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                    ->columnSpan(2)
+                    ->columnSpan([
+                        'lg' => 1,
+                        'md' => 2,
+                        'sm' => 'full'
+                    ])
                     ->searchable(),
+
                 Forms\Components\TextInput::make('description')
                     ->label(__('order.fields.items.description.label'))
-                    ->columnSpan(2),
-                DecimalInput::make('price')
-                    ->label(__('order.fields.items.price.label'))
-                    ->columnSpan(['lg' => 1, 'sm' => 2]),
+                    ->columnSpan([
+                        'lg' => 1,
+                        'md' => 2,
+                        'sm' => 'full'
+                    ]),
 
-                DecimalInput::make('qty')
-                    ->columnSpan(['lg' => 1, 'sm' => 2])
-                    ->label(__('order.fields.items.qty.label')),
+                Forms\Components\Group::make()
+                    ->columns(4)->columnSpanFull()->schema([
+                        DecimalInput::make('price')
+                            ->label(__('order.fields.items.price.label'))
+                            ->columnSpan(1),
 
-                DecimalInput::make('sub_discount')
-                    ->label(__('order.fields.items.sub_discount.label'))
-                    ->columnSpan(['lg' => 1, 'sm' => 2]),
+                        DecimalInput::make('qty')
+                            ->columnSpan(1)
+                            ->label(__('order.fields.items.qty.label')),
 
-                DecimalInput::make('sub_total')
-                    ->label(__('order.fields.items.sub_total.label'))
-                    ->columnSpan(['lg' => 1, 'sm' => 2])->readOnly()
-                    ->dehydrated(true),
+                        DecimalInput::make('sub_discount')
+                            ->label(__('order.fields.items.sub_discount.label'))
+                            ->columnSpan(1),
+
+                        DecimalInput::make('sub_total')
+                            ->label(__('order.fields.items.sub_total.label'))
+                            ->columnSpan(1)
+                            ->readOnly()
+                            ->dehydrated(true),
+                    ])
             ])
             ->live(onBlur: true)
             ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set))
-            ->columns(['lg' => 4, 'sm' => 2, 'default' => 1])
+            ->columns(2)
             ->columnSpanFull();
     }
 
@@ -530,7 +544,7 @@ class OrderResource extends Resource
             $itemDiscount = (float)($item['sub_discount'] ?? 0);
 
             $subTotal = max(0, ($unitPrice - $itemDiscount)) * $quantity;
-            $item['sub_total'] = $subTotal;
+            $item['sub_total'] = self::truncate_float( $subTotal,2);
             return $item;
         });
 
@@ -543,7 +557,7 @@ class OrderResource extends Resource
         $shipping = (float)($get('shipping') ?? 0);
         $installation = (float)($get('install') ?? 0);
 
-        $set('discount', $totalDiscount);
+        $set('discount', self::truncate_float( $totalDiscount,2));
         $set('total', self::truncate_float($totalItemsPrice + $installation + $shipping, 2));
     }
 
