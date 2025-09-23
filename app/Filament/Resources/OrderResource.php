@@ -94,6 +94,7 @@ class OrderResource extends Resource
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->step('0.01')
+                                    ->hintColor('info')
                                     ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
                                     ->default(0)
                                     ->hint(fn($state) => number_format($state))
@@ -104,9 +105,9 @@ class OrderResource extends Resource
                                     ->numeric()
                                     ->inputMode('decimal')
                                     ->step('0.01')
+                                    ->hintColor('info')
                                     ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
-                                    ->hint(fn($state) => number_format($state))
-
+                                    ->hint(fn($state) => number_format($state, 2))
                                     ->minValue(0)
                                     ->default(0)
                                     ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set)),
@@ -115,16 +116,18 @@ class OrderResource extends Resource
                                     ->label(__('order.fields.items.discount.label'))
                                     ->disabled()
                                     ->dehydrated(true)
-                                    ->hint(fn($state) => number_format($state))
+                                    ->hint(fn($state) => number_format($state, 2))
                                     ->numeric()
+                                    ->hintColor('info')
                                     ->default(0),
                                 Forms\Components\TextInput::make('total')
                                     ->label(__('order.fields.total.label'))
-                                    ->hint(fn($state) => number_format($state))
+                                    ->hint(fn($state) => number_format($state, 2))
                                     ->disabled()
                                     ->dehydrated(true)
-                                    ->hint(fn($state) => number_format($state))
+                                    ->hint(fn($state) => number_format($state, 2))
                                     ->numeric()
+                                    ->hintColor('info')
                                     ->default(0),
                                 Forms\Components\Textarea::make('notes')
                                     ->label(__('order.fields.notes.label'))
@@ -254,13 +257,13 @@ class OrderResource extends Resource
                         Forms\Components\TextInput::make('total')
                             ->label(__('order.fields.total.label'))
                             ->numeric()
-                            ->hint(fn($state) => number_format($state))
+                            ->hint(fn($state) => number_format($state, 2))
                             ->hintColor('info')
                             ->disabled(),
                         Forms\Components\TextInput::make('paid')
                             ->label(__('order.fields.paid.label'))
                             ->numeric()
-                            ->hint(fn($state) => number_format($state))
+                            ->hint(fn($state) => number_format($state, 2))
                             ->hintColor('info')
                             ->disabled(),
                         Forms\Components\Select::make('payment_method')
@@ -274,7 +277,7 @@ class OrderResource extends Resource
                             ->live(onBlur: true)
                             ->maxValue(fn($record) => $record->total - $record->paid)
                             ->minValue(1)
-                            ->hint(fn($state) => number_format($state))
+                            ->hint(fn($state) => number_format($state, 2))
                             ->hintColor('info')
                             ->numeric(),
                     ])
@@ -525,7 +528,7 @@ class OrderResource extends Resource
                     ->columnSpan(6),
                 Forms\Components\TextInput::make('price')
                     ->label(__('order.fields.items.price.label'))
-                    ->hint(fn($state) => number_format($state))
+                    ->hint(fn($state) => number_format($state, 2))
                     ->columnSpan(3)
                     ->numeric()
                     ->inputMode('decimal')
@@ -536,7 +539,7 @@ class OrderResource extends Resource
                     ->hint(fn($state) => number_format($state))
                     ->columnSpan(3)
                     ->label(__('order.fields.items.qty.label'))
-                    ->hint(fn($state) => number_format($state))
+                    ->hint(fn($state) => number_format($state, 2))
                     ->hintColor('info')
                     ->numeric()
                     ->inputMode('decimal')
@@ -546,7 +549,7 @@ class OrderResource extends Resource
                     ->label(__('order.fields.items.sub_discount.label'))
                     ->columnSpan(3)
                     ->live(onBlur: true)
-                    ->hint(fn($state) => number_format($state))
+                    ->hint(fn($state) => number_format($state, 2))
                     ->numeric()
                     ->inputMode('decimal')
                     ->step('0.01')
@@ -556,7 +559,7 @@ class OrderResource extends Resource
                 Forms\Components\TextInput::make('sub_total')
                     ->label(__('order.fields.items.sub_total.label'))
                     ->columnSpan(3)
-                    ->hint(fn($state) => number_format($state))
+                    ->hint(fn($state) => number_format($state, 2))
                     ->hintColor('info')
                     ->readOnly()
                     ->dehydrated(true)
@@ -590,6 +593,12 @@ class OrderResource extends Resource
         $installation = (float)($get('install') ?? 0);
 
         $set('discount', $totalDiscount);
-        $set('total', $totalItemsPrice + $installation + $shipping);
+        $set('total', self::truncate_float($totalItemsPrice + $installation + $shipping, 2));
+    }
+
+    public static function truncate_float(float $number, int $precision): float
+    {
+        $factor = pow(10, $precision);
+        return floor($number * $factor) / $factor;
     }
 }

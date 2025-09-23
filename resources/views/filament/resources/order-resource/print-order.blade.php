@@ -11,7 +11,7 @@
 
                             <div>
                                 <div class="text-2xl font-bold">
-                                    {{ config('app.name') }}
+                                    {{ __('app.name') }}
                                 </div>
                                 <div class="text-lg font-bold">
                                     {{ $this->getRecord()->branch->name }}
