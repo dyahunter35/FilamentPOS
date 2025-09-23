@@ -3,33 +3,23 @@
         <x-filament::section>
             <div>
                 <div class="flex justify-between xl:gap-60 lg:gap-48 md:gap-16 sm:gap-8 sm:flex-row flex-col gap-4">
-                    <div class="w-full">
-                        <div>
-                            <img src="{{ asset('asset/images/logo/gas 200.png') }}" class="w-16">
-                        </div>
-                        <div class="flex flex-col">
-                            <div class="text-sm text-gray-400  mt-3">
-                                {{ trans('filament-invoices::messages.invoices.view.bill_from') }}:
-                            </div>
-                            <div class="text-2xl font-bold">
-                                {{ config('app.name') }}
-                            </div>
-                            <div class="text-lg font-bold">
-                                {{ $this->getRecord()->branch->name }}
-                            </div>
-                            <div class="text-sm">
-                                {{-- $this->getRecord()->billedFrom->phone --}}
-                            </div>
-                            <div class="text-sm">
-                                {{-- $this->getRecord()->billedFrom->address --}}
-                            </div>
-                            <div class="text-sm">
-                                {{-- $this->getRecord()->billedFrom->zip}} {{$this->getRecord()->billedFrom->city --}}
-                            </div>
-                            <div class="text-sm">
-                                {{-- $this->getRecord()->billedFrom->country?->name --}}
+                    <div class="w-full ">
+
+                        {{-- <img src="{{ asset('asset/images/logo/gas 200.png') }}" class="w-16"> --}}
+                        <div class="flex flex-row items-start gap-4">
+                            <img alt="" src="{{ asset('asset/images/logo/gas 200.png') }}" class="w-16" />
+
+                            <div>
+                                <div class="text-2xl font-bold">
+                                    {{ config('app.name') }}
+                                </div>
+                                <div class="text-lg font-bold">
+                                    {{ $this->getRecord()->branch->name }}
+                                </div>
                             </div>
                         </div>
+
+
                         <div class="mt-6">
                             <div class="mt-4">
                                 <div class="text-sm text-gray-400">
@@ -38,9 +28,9 @@
                                 <div class="text-lg font-bold">
                                     {{ $this->getRecord()->customer?->name }}
                                 </div>
-                                <div class="text-sm">
+                                {{-- <div class="text-sm">
                                     {{ $this->getRecord()->customer?->email }}
-                                </div>
+                                </div> --}}
                                 <div class="text-sm">
                                     {{ $this->getRecord()->customer?->phone }}
                                 </div>
@@ -228,40 +218,37 @@
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.name') }}</span>
-                                            : <span class="font-bold">{{ $this->getRecord()->bank_name }}</span>
+                                            : <span class="font-bold"></span>
                                         </div>
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.address') }}</span>
-                                            : <span class="font-bold">{{ $this->getRecord()->bank_address }},
-                                                {{ $this->getRecord()->bank_city }},
-                                                {{ $this->getRecord()->bank_country }}</span>
+                                            : <span class="font-bold">,,</span>
                                         </div>
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.branch') }}</span>
-                                            : <span class="font-bold">{{ $this->getRecord()->bank_branch }}</span>
+                                            : <span class="font-bold"></span>
                                         </div>
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.swift') }}</span>
-                                            : <span class="font-bold">{{ $this->getRecord()->bank_swift }}</span>
+                                            : <span class="font-bold"></span>
                                         </div>
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.account') }}</span>
-                                            : <span class="font-bold">{{ $this->getRecord()->bank_account }}</span>
+                                            : <span class="font-bold"></span>
                                         </div>
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.owner') }}</span>
-                                            : <span
-                                                class="font-bold">{{ $this->getRecord()->bank_account_owner }}</span>
+                                            : <span class="font-bold"></span>
                                         </div>
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.iban') }}</span>
-                                            : <span class="font-bold">{{ $this->getRecord()->bank_iban }}</span>
+                                            : <span class="font-bold"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -469,6 +456,15 @@
 
 
     <style type="text/css" media="print">
+        @page {
+            margin: 0;
+            size: auto;
+        }
+
+        body {
+            margin: 1cm;
+        }
+
         .fi-section-content-ctn {
             padding: 0 !important;
             border: none !important;
@@ -477,6 +473,7 @@
         .fi-section {
             border: none !important;
             box-shadow: none !important;
+            page-break-inside: avoid;
         }
 
         .fi-section-content {
@@ -491,29 +488,29 @@
             color: black !important;
         }
 
+        img {
+            display: block !important;
+            page-break-inside: avoid;
+        }
+
         .no-print {
-            display: none;
-            !important;
+            display: none !important;
         }
 
         .fi-header {
-            display: none;
-            !important;
+            display: none !important;
         }
 
         .fi-topbar {
-            display: none;
-            !important;
+            display: none !important;
         }
 
         .fi-sidebar {
-            display: none;
-            !important;
+            display: none !important;
         }
 
         .fi-sidebar-close-overlay {
-            display: none;
-            !important;
+            display: none !important;
         }
     </style>
 
