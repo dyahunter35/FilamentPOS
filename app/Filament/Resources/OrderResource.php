@@ -8,6 +8,7 @@ use App\Models\Order;
 use Filament\Forms;
 use App\Enums\OrderStatus;
 use App\Enums\Payment;
+use App\Filament\Forms\Components\DecimalInput;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderLogsRelationManager;
 use App\Filament\Resources\OrderResource\RelationManagers\OrderMetasRelationManager;
 use App\Filament\Resources\OrderResource\Widgets\OrderStats;
@@ -88,47 +89,25 @@ class OrderResource extends Resource
                         Section::make(__('order.sections.totals.label'))
                             ->icon('heroicon-o-banknotes')
                             ->schema([
-                                Forms\Components\TextInput::make('shipping')
+                                DecimalInput::make('shipping')
                                     ->label(__('order.fields.shipping.label'))
                                     ->live(onBlur: true)
-                                    ->numeric()
-                                    ->inputMode('decimal')
-                                    ->step('0.01')
-                                    ->hintColor('info')
-                                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
-                                    ->default(0)
-                                    ->hint(fn($state) => number_format($state))
+
                                     ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set)),
-                                Forms\Components\TextInput::make('install')
+                                DecimalInput::make('install')
                                     ->label(__('order.fields.installation.label'))
                                     ->live(onBlur: true)
-                                    ->numeric()
-                                    ->inputMode('decimal')
-                                    ->step('0.01')
-                                    ->hintColor('info')
-                                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
-                                    ->hint(fn($state) => number_format($state, 2))
-                                    ->minValue(0)
-                                    ->default(0)
+
                                     ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set)),
-                                Forms\Components\TextInput::make('discount')
+                                DecimalInput::make('discount')
                                     ->hint(fn($state) => number_format($state))
                                     ->label(__('order.fields.items.discount.label'))
                                     ->disabled()
-                                    ->dehydrated(true)
-                                    ->hint(fn($state) => number_format($state, 2))
-                                    ->numeric()
-                                    ->hintColor('info')
-                                    ->default(0),
-                                Forms\Components\TextInput::make('total')
+                                    ->dehydrated(true),
+                                DecimalInput::make('total')
                                     ->label(__('order.fields.total.label'))
-                                    ->hint(fn($state) => number_format($state, 2))
                                     ->disabled()
-                                    ->dehydrated(true)
-                                    ->hint(fn($state) => number_format($state, 2))
-                                    ->numeric()
-                                    ->hintColor('info')
-                                    ->default(0),
+                                    ->dehydrated(true),
                                 Forms\Components\Textarea::make('notes')
                                     ->label(__('order.fields.notes.label'))
                                     ->columnSpanFull(),
@@ -254,32 +233,22 @@ class OrderResource extends Resource
                         'amount' => $record->total - $record->paid,
                     ])
                     ->form([
-                        Forms\Components\TextInput::make('total')
+                        DecimalInput::make('total')
                             ->label(__('order.fields.total.label'))
-                            ->numeric()
-                            ->hint(fn($state) => number_format($state, 2))
-                            ->hintColor('info')
                             ->disabled(),
-                        Forms\Components\TextInput::make('paid')
+                        DecimalInput::make('paid')
                             ->label(__('order.fields.paid.label'))
-                            ->numeric()
-                            ->hint(fn($state) => number_format($state, 2))
-                            ->hintColor('info')
                             ->disabled(),
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
                             ->required()
-                            ->default(Payment::Cash)
+                            ->default(Payment::Bok)
                             ->options(Payment::class),
-                        Forms\Components\TextInput::make('amount')
+                        DecimalInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
-                            ->maxValue(fn($record) => $record->total - $record->paid)
-                            ->minValue(1)
-                            ->hint(fn($state) => number_format($state, 2))
-                            ->hintColor('info')
-                            ->numeric(),
+                            ->maxValue(fn($record) => $record->total - $record->paid),
                     ])
                     ->action(function (array $data, Order $record) {
 
@@ -521,53 +490,32 @@ class OrderResource extends Resource
                     )
                     ->required()
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
-                    ->columnSpan(['md' => 6])
+                    ->columnSpan(2)
                     ->searchable(),
                 Forms\Components\TextInput::make('description')
                     ->label(__('order.fields.items.description.label'))
-                    ->columnSpan(6),
-                Forms\Components\TextInput::make('price')
+                    ->columnSpan(2),
+                DecimalInput::make('price')
                     ->label(__('order.fields.items.price.label'))
-                    ->hint(fn($state) => number_format($state, 2))
-                    ->columnSpan(3)
-                    ->numeric()
-                    ->inputMode('decimal')
-                    ->step('0.01')
-                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/']),
-                Forms\Components\TextInput::make('qty')
-                    ->live(onBlur: true)
-                    ->hint(fn($state) => number_format($state))
-                    ->columnSpan(3)
-                    ->label(__('order.fields.items.qty.label'))
-                    ->hint(fn($state) => number_format($state, 2))
-                    ->hintColor('info')
-                    ->numeric()
-                    ->inputMode('decimal')
-                    ->step('0.01')
-                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/', 'min:0.01']),
-                Forms\Components\TextInput::make('sub_discount')
+                    ->columnSpan(1),
+
+                DecimalInput::make('qty')
+                    ->columnSpan(1)
+                    ->label(__('order.fields.items.qty.label')),
+
+                DecimalInput::make('sub_discount')
                     ->label(__('order.fields.items.sub_discount.label'))
-                    ->columnSpan(3)
-                    ->live(onBlur: true)
-                    ->hint(fn($state) => number_format($state, 2))
-                    ->numeric()
-                    ->inputMode('decimal')
-                    ->step('0.01')
-                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/'])
-                    ->hint(fn(Forms\Get $get) => $get('sub_discount') > $get('price') ? __('order.fields.items.sub_discount.hint_error') : null)
-                    ->hintColor('info'),
-                Forms\Components\TextInput::make('sub_total')
+                    ->columnSpan(1),
+
+                DecimalInput::make('sub_total')
                     ->label(__('order.fields.items.sub_total.label'))
-                    ->columnSpan(3)
-                    ->hint(fn($state) => number_format($state, 2))
-                    ->hintColor('info')
+                    ->columnSpan(1)
                     ->readOnly()
-                    ->dehydrated(true)
-                    ->numeric(),
+                    ->dehydrated(true),
             ])
             ->live(onBlur: true)
             ->afterStateUpdated(fn(Forms\Get $get, Forms\Set $set) => self::calculate($get, $set))
-            ->columns(12)
+            ->columns(['lg' => 4, 'sm' => 2, 'default' => 1])
             ->columnSpanFull();
     }
 

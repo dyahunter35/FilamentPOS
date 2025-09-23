@@ -152,12 +152,11 @@
                                         <div class="flex justify-center">
                                             <div>
                                                 <div class="font-medium">
-                                                    -
+                                                    (1)
                                                 </div>
                                                 <div class="font-bold">
                                                     {{ number_format($item->qty, 1) }}
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>

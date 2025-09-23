@@ -4,6 +4,7 @@ namespace App\Filament\Resources\OrderResource\RelationManagers;
 
 use App\Enums\OrderStatus;
 use App\Enums\Payment;
+use App\Filament\Forms\Components\DecimalInput;
 use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -79,33 +80,22 @@ class OrderMetasRelationManager extends RelationManager
                         'amount' => $this->ownerRecord->total - $this->ownerRecord->paid,
                     ])
                     ->form([
-                        Forms\Components\TextInput::make('total')
+                        DecimalInput::make('total')
                             ->label(__('order.fields.total.label'))
-                            ->numeric()
-                            ->hint(fn($state) => number_format($state))
-                            ->hintColor('info')
                             ->disabled(),
-                        Forms\Components\TextInput::make('paid')
+                        DecimalInput::make('paid')
                             ->label(__('order.fields.paid.label'))
-                            ->numeric()
-                            ->hint(fn($state) => number_format($state))
-                            ->hintColor('info')
                             ->disabled(),
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
                             ->required()
-                            ->default(Payment::Cash)
+                            ->default(Payment::Bok)
                             ->options(Payment::class),
-                        Forms\Components\TextInput::make('amount')
+                        DecimalInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
-                            ->hint(fn($state) => number_format($state))
-                            ->hintColor('info')
-                            ->numeric()
-                            ->maxValue($this->ownerRecord->total - $this->ownerRecord->paid)
-                            ->minValue(1)
-                            
+                            ->maxValue(fn($record) => $record->total - $record->paid),
                     ])
                     ->action(function (array $data, Order $ownerRecord) {
 
