@@ -242,12 +242,16 @@ class OrderResource extends Resource
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
                             ->required()
-                            ->default(Payment::Bok)
-                            ->options(Payment::class),
-                        DecimalInput::make('amount')
+                            ->options(Payment::class)
+                            ->default(Payment::Bok),
+                        Forms\Components\TextInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
+                            ->numeric()
+                            ->rules(['regex:/^-?\d+(\.\d{1,2})?$/'])
                             ->maxValue(fn($record) => $record->total - $record->paid),
                     ])
                     ->action(function (array $data, Order $record) {
@@ -497,20 +501,19 @@ class OrderResource extends Resource
                     ->columnSpan(2),
                 DecimalInput::make('price')
                     ->label(__('order.fields.items.price.label'))
-                    ->columnSpan(1),
+                    ->columnSpan(['lg' => 1, 'sm' => 2]),
 
                 DecimalInput::make('qty')
-                    ->columnSpan(1)
+                    ->columnSpan(['lg' => 1, 'sm' => 2])
                     ->label(__('order.fields.items.qty.label')),
 
                 DecimalInput::make('sub_discount')
                     ->label(__('order.fields.items.sub_discount.label'))
-                    ->columnSpan(1),
+                    ->columnSpan(['lg' => 1, 'sm' => 2]),
 
                 DecimalInput::make('sub_total')
                     ->label(__('order.fields.items.sub_total.label'))
-                    ->columnSpan(1)
-                    ->readOnly()
+                    ->columnSpan(['lg' => 1, 'sm' => 2])->readOnly()
                     ->dehydrated(true),
             ])
             ->live(onBlur: true)

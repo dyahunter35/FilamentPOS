@@ -154,6 +154,7 @@ return [
             'options' => [
                 'cash' => 'Cash',
                 'bok' => 'mBOK',
+                'refund' => 'Money Back',
             ],
         ],
         'amount'=>[

@@ -149,6 +149,7 @@ return [
             'options' => [
                 'cash' => 'نقداً',
                 'bok' => 'بنكك',
+                'refund' => 'استعادة مبلغ',
             ],
         ],
         'amount' => [

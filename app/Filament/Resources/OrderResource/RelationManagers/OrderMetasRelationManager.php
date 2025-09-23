@@ -85,17 +85,23 @@ class OrderMetasRelationManager extends RelationManager
                             ->disabled(),
                         DecimalInput::make('paid')
                             ->label(__('order.fields.paid.label'))
+
                             ->disabled(),
                         Forms\Components\Select::make('payment_method')
                             ->label(__('order.fields.payment_method.label'))
+                            ->options(Payment::toArray())
+                            ->default('cash')
                             ->required()
-                            ->default(Payment::Bok)
-                            ->options(Payment::class),
-                        DecimalInput::make('amount')
+                            ,
+                        Forms\Components\TextInput::make('amount')
                             ->label(__('order.fields.amount.label'))
                             ->required()
                             ->live(onBlur: true)
-                            ->maxValue(fn($record) => $record->total - $record->paid),
+                            ->hint(fn($state) => number_format($state))
+                            ->hintColor('info')
+                            ->numeric()
+                            ->maxValue($this->ownerRecord->total - $this->ownerRecord->paid)
+                            ->rules(['regex:/^-?\d+(\.\d{1,2})?$/'])
                     ])
                     ->action(function (array $data, Order $ownerRecord) {
 
