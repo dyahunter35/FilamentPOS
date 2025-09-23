@@ -143,6 +143,6 @@ class Order extends Model
             $nextNumber = $lastNumber + 1;
         }
 
-        return $prefix . $year . $month . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        return $prefix .str_pad($branch_id, 2, '0', STR_PAD_LEFT).'-'. $year . $month . '-' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
     }
 }
