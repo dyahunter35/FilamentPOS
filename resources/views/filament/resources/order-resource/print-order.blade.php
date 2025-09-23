@@ -114,20 +114,30 @@
                     <div class="border border-gray-200 dark:border-gray-700 rounded-lg my-4 px-2">
                         <div class="flex flex-col">
                             <div
-                                class="flex justify-between  px-4 py-2 border-gray-200 dark:border-gray-700 font-bold border-b text-start">
+                                class="flex justify-between  px-4 py-2 border-gray-200 dark:border-gray-700 font-bold border-b text-center">
                                 <div class="p-2 w-full">
                                     {{ trans('filament-invoices::messages.invoices.view.item') }}
+                                </div>
+                                <div class="p-2 w-full">
+                                    {{ trans('filament-invoices::messages.invoices.view.qty') }}
+                                </div>
+                                <div class="p-2 w-full">
+                                    {{ trans('filament-invoices::messages.invoices.view.price') }}
+                                </div>
+                                <div class="p-2 w-full">
+                                    {{ trans('filament-invoices::messages.invoices.view.discount') }}
                                 </div>
                                 <div class="p-2 w-full">
                                     {{ trans('filament-invoices::messages.invoices.view.total') }}
                                 </div>
                             </div>
                         </div>
+
                         <div class="flex flex-col gap-4 divide-y divide-gray-100 dark:divide-white/5">
                             @foreach ($this->getRecord()->items as $key => $item)
                                 <div class="flex justify-between px-4 py-2">
                                     <div class="flex flex-col w-full">
-                                        <div class="flex justify-start">
+                                        <div class="flex justify-center items-center">
                                             <div>
                                                 <div class="font-bold text-lg">
                                                     {{ $item->product?->name }}
@@ -148,69 +158,65 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="w-full">
-                                        <div class="p-2">
-                                            <div class="flex flex-col mt-2">
-                                                <div>
-                                                    <div class="flex justify-between">
-                                                        <span
-                                                            class="text-sm text-gray-400 uppercase w-full">{{ trans('filament-invoices::messages.invoices.view.qty') }}:</span>
-                                                        <span class="w-full text-l">
-                                                            {{ $item->qty }}
-                                                        </span>
-                                                        <span class="w-full">
-                                                        </span>
-                                                    </div>
+                                    <div class="flex flex-col w-full">
+                                        <div class="flex justify-center">
+                                            <div>
+                                                <div class="font-medium">
+                                                    -
                                                 </div>
-                                                <div>
-                                                    <div class="flex justify-between">
-                                                        <span
-                                                            class="text-sm text-gray-400 uppercase w-full">{{ trans('filament-invoices::messages.invoices.view.price') }}:</span>
-                                                        <span class="w-full gap-2">
-                                                            {{ number_format($item->price, 2) }}
-                                                        </span>
-                                                        <span class="w-full">
-                                                            {{ number_format($item->price * $item->qty, 2) }}
-                                                        </span>
-                                                    </div>
+                                                <div class="font-bold">
+                                                    {{ number_format($item->qty, 1) }}
                                                 </div>
 
-                                                <div>
-                                                    <div class="flex justify-between">
-                                                        <span
-                                                            class="text-sm text-gray-400 uppercase w-full">{{ trans('filament-invoices::messages.invoices.view.discount') }}:</span>
-                                                        <span class="w-full">
-                                                            {{ number_format($item->sub_discount, 2) }} <small
-                                                                class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
-                                                        </span>
-                                                        <span class="w-full">
-                                                            {{ number_format($item->sub_discount * $item->qty, 2) }}<small
-                                                                class="text-md font-normal">{{ $this->getRecord()->currency }}
-                                                            </small>
-                                                        </span>
-                                                    </div>
-                                                </div>
-
-                                                <div>
-                                                    <div class="flex justify-between">
-                                                        <span
-                                                            class="text-sm text-gray-400 uppercase w-full">{{ trans('filament-invoices::messages.invoices.view.total') }}:</span>
-                                                        <span class="w-full font-bold">
-                                                            {{ number_format($item->price - $item->sub_discount, 2) }}
-                                                        </span>
-                                                        <span class="w-full font-bold">
-                                                            {{ number_format(($item->price - $item->sub_discount) * $item->qty, 2) }}
-                                                        </span>
-                                                    </div>
-                                                </div>
                                             </div>
-
                                         </div>
                                     </div>
+                                    <div class="flex flex-col w-full">
+                                        <div class="flex justify-center">
+                                            <div>
+                                                <div class="font-medium">
+                                                    {{ number_format($item->price, 1) }}
+                                                </div>
+                                                <div class="font-bold">
+                                                    {{ number_format($item->price * $item->qty, 1) }}
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col w-full">
+                                        <div class="flex justify-center">
+                                            <div>
+                                                <div class="font-medium">
+                                                    {{ number_format($item->sub_discount, 1) }}
+                                                </div>
+                                                <div class="font-bold">
+                                                    {{ number_format($item->sub_discount * $item->qty, 1) }}
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col w-full">
+                                        <div class="flex justify-center">
+                                            <div>
+                                                <div class="font-medium">
+                                                    {{ number_format($item->price - $item->sub_discount, 1) }}
+                                                </div>
+                                                <div class="font-bold">
+                                                    {{ number_format(($item->price - $item->sub_discount) * $item->qty, 1) }}
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             @endforeach
                         </div>
                     </div>
+
+
                     <div class="flex justify-between mt-6">
                         <div class="flex flex-col justify-end gap-4 w-full">
                             @if ($this->getRecord()->is_bank_transfer)
@@ -284,7 +290,7 @@
                                     {{ trans('order.invoice.labels.subtotal') }}
                                 </div>
                                 <div>
-                                    {{ number_format($this->getRecord()->total + $this->getRecord()->discount - $this->getRecord()->shipping - $this->getRecord()->install, 2) }}
+                                    {{ number_format($this->getRecord()->total + $this->getRecord()->discount - $this->getRecord()->shipping - $this->getRecord()->install, 1) }}
                                     <small class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
@@ -294,7 +300,7 @@
                                         {{ trans('order.fields.shipping.label') }}
                                     </div>
                                     <div>
-                                        {{ number_format($this->getRecord()->shipping, 2) }} <small
+                                        {{ number_format($this->getRecord()->shipping, 1) }} <small
                                             class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
@@ -306,7 +312,7 @@
                                         {{ trans('order.fields.installation.label') }}
                                     </div>
                                     <div>
-                                        {{ number_format($this->getRecord()->install, 2) }} <small
+                                        {{ number_format($this->getRecord()->install, 1) }} <small
                                             class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
@@ -318,7 +324,7 @@
                                         {{ trans('filament-invoices::messages.invoices.view.discount') }}
                                     </div>
                                     <div>
-                                        {{ number_format($this->getRecord()->discount, 2) }} <small
+                                        {{ number_format($this->getRecord()->discount, 1) }} <small
                                             class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
@@ -328,29 +334,35 @@
                                     {{ trans('filament-invoices::messages.invoices.view.total') }}
                                 </div>
                                 <div>
-                                    {{ number_format($this->getRecord()->total, 2) }} <small
+                                    {{ number_format($this->getRecord()->total, 1) }} <small
                                         class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
-                            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
-                                <div class="font-bold">
-                                    {{ trans('filament-invoices::messages.invoices.view.paid') }}
+                            @if ($this->getRecord()->paid > 0)
+                                <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+                                    <div class="font-bold">
+                                        {{ trans('filament-invoices::messages.invoices.view.paid') }}
+                                    </div>
+                                    <div>
+                                        {{ number_format($this->getRecord()->paid, 1) }} <small
+                                            class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                    </div>
                                 </div>
-                                <div>
-                                    {{ number_format($this->getRecord()->paid, 2) }} <small
-                                        class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
-                                </div>
-                            </div>
+                            @endif
 
-                            <div class="flex justify-between text-xl font-bold">
-                                <div>
-                                    {{ trans('filament-invoices::messages.invoices.view.balance_due') }}
+
+                            @if ($this->getRecord()->total - $this->getRecord()->paid > 0)
+                                <div class="flex justify-between text-xl font-bold">
+                                    <div>
+                                        {{ trans('filament-invoices::messages.invoices.view.balance_due') }}
+                                    </div>
+                                    <div>
+                                        {{ number_format($this->getRecord()->total - $this->getRecord()->paid, 1) }}
+                                        <small class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                    </div>
                                 </div>
-                                <div>
-                                    {{ number_format($this->getRecord()->total - $this->getRecord()->paid, 2) }} <small
-                                        class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
-                                </div>
-                            </div>
+                            @endif
+
                         </div>
                     </div>
 
@@ -409,7 +421,7 @@
                                     </td>
 
                                     <td class="px-6 py-4 text-center">
-                                        {{ number_format($meta->value, 2) }} <small
+                                        {{ number_format($meta->value, 1) }} <small
                                             class="text-md font-normal">SDG</small>
                                     </td>
                                     <td class="px-6 py-4 text-center">
