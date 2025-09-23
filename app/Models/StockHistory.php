@@ -34,6 +34,9 @@ class StockHistory extends Model
         static::created(function (StockHistory $history) {
             $servies = new InventoryService;
             $servies->updateAllBranches();
+            $product = $history->product;
+            if (($product->total_stock >= $product->security_stock) && $product->low_stock_notified_at)
+                $product->update(['low_stock_notified_at' => null]);
         });
     }
 
@@ -45,5 +48,10 @@ class StockHistory extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class);
     }
 }

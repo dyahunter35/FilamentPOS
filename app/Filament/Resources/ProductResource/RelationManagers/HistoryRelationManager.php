@@ -8,9 +8,7 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Services\InventoryService; // <-- استيراد الكلاس
 use Exception;
 use Filament\Facades\Filament;
@@ -24,7 +22,8 @@ class HistoryRelationManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('stock_history.label.plural');
+        $quantity = (auth()->user()->hasAnyRole(['مدير', 'super_admin'])) ? ' (' . $ownerRecord->total_stock  . ')' : '';
+        return __('stock_history.label.plural') . $quantity;
     }
 
     protected static function getPluralRecordLabel(): ?string
@@ -80,8 +79,8 @@ class HistoryRelationManager extends RelationManager
                 Tables\Columns\TextColumn::make('quantity_change')
                     ->label(__('stock_history.fields.quantity_change.label')),
 
-                Tables\Columns\TextColumn::make('new_quantity')
-                    ->label(__('stock_history.fields.quantity_after_change.label')),
+                /*  Tables\Columns\TextColumn::make('new_quantity')
+                    ->label(__('stock_history.fields.quantity_after_change.label')), */
 
                 Tables\Columns\TextColumn::make('user.name')
                     ->label(__('stock_history.fields.user.label'))
@@ -103,7 +102,7 @@ class HistoryRelationManager extends RelationManager
                         $branch = Filament::getTenant(); // افتراض أنك تعمل داخل tenant
                         $user = Auth::user();
 
-                        if ($data['type'] === 'increase') {
+                        if ($data['type'] === 'increase' || $data['type'] === 'initial') {
                             return $inventoryService->addStockForBranch(
                                 $product,
                                 $branch,
@@ -131,14 +130,11 @@ class HistoryRelationManager extends RelationManager
                                 throw new Halt();
                             }
                         }
-                        $inventoryService->updateAllBranches();
-                        if (($product->total_stock > $product->security_stock) && $product->low_stock_notified_at)
-                            $product->update('low_stock_notified_at', null);
                     }),
             ])
             ->actions([
                 // You can add actions like Edit or Delete if needed
-                Tables\Actions\EditAction::make(),
+                //Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([

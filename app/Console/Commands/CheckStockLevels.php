@@ -41,7 +41,7 @@ class CheckStockLevels extends Command
             ->whereNull('low_stock_notified_at')
             ->get();
 
-        $allUsers = User::whereRoleIs('مدير')->get();
+        $allUsers = User::role(['مدير','super_admin'])->get();
 
         if ($lowStockProducts->isNotEmpty()) {
 
