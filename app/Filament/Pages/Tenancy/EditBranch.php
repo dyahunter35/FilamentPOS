@@ -56,7 +56,7 @@ class EditBranch extends EditTenantProfile
 
         return $record;
     }
-    
+
     protected function getRedirectUrl(): ?string
     {
         // ** The New Redirect Logic **
@@ -76,6 +76,18 @@ class EditBranch extends EditTenantProfile
         $user = Auth::user();
 
         // Return true only if the user's email matches the specific email
-        return true; //$user && $user->email === 'admin@example.com';
+        return $user && $user->email === 'dyahunter35@gmail.com';
     }
+    public static function canView(Model $tenant): bool
+    {
+        // Get the authenticated user
+        $user = Auth::user();
+
+        // Return true only if the user's email matches the specific email
+        return $user && $user->email === 'dyahunter35@gmail.com';
+    }
+
+
+
+
 }

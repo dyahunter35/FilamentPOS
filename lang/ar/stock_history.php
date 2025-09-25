@@ -12,6 +12,11 @@ return [
             'label' => 'بواسطة',
             'placeholder' => 'أدخل ملاحظة',
         ],
+        'product_id' => [
+            'label' => 'المنتج',
+            'placeholder' => 'اختر المنتج',
+        ],
+
         'quantity_change' => [
             'label' => 'مقدار التغيير',
             'placeholder' => 'أدخل مقدار التغيير',
@@ -35,7 +40,7 @@ return [
             'options' => [
                 'increase' => 'زيادة (إضافة مخزون)',
                 'decrease' => 'نقصان (إزالة مخزون)',
-                'initial' => 'جرد أولي للمخزون',
+                'initial' => 'معادلة المخزون',
             ]
         ],
         'created_at' => [

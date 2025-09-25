@@ -12,6 +12,12 @@ return [
             'label' => 'Caused By',
             'placeholder' => 'Enter note',
         ],
+
+        'product_id' => [
+            'label' => 'Product',
+            'placeholder' => 'Enter product',
+        ],
+
         'quantity_change' => [
             'label' => 'Quantity Change',
             'placeholder' => 'Enter note',
@@ -35,7 +41,7 @@ return [
             'options' => [
                 'increase' => 'Increase (Add Stock)',
                 'decrease' => 'Decrease (Remove Stock)',
-                'initial' => 'Initial Stock Count',
+                'initial' => 'Equalize Stock',
             ]
         ],
         'created_at' => [

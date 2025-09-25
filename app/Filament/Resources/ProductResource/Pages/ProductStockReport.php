@@ -10,6 +10,7 @@ use App\Services\InventoryService;
 use Filament\Resources\Pages\Page;
 use Filament\Actions;
 use Filament\Facades\Filament;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ProductStockReport extends Page
 {
@@ -20,14 +21,27 @@ class ProductStockReport extends Page
     protected static string $view = 'filament.resources.product-resource.pages.product-stock-report';
     // protected static string $view = 'filament.resources.product-resource.pages.product';
     // protected static string $view = 'welcome';
+        protected static ?int $navigationSort = 8;
 
     // اسم الصفحة في قائمة التنقل
     protected static ?string $navigationLabel = 'تقرير مخزون المنتجات';
 
-    // المجموعة التي ستظهر تحتها الصفحة في قائمة التنقل
+    protected static bool $shouldRegisterNavigation = true;
+
+    // --- NAVIGATION ---
+    public function getTitle(): string | Htmlable
+    {
+        return __('branch_reports.all_branch.label');
+    }
+    public static function getNavigationLabel(): string
+    {
+        return __('branch_reports.all_branch.model_label');
+    }
+
+
     public static function getNavigationGroup(): ?string
     {
-        return 'التقارير'; // Reports
+        return __('branch_reports.navigation.group');
     }
 
     /**

@@ -7,6 +7,8 @@ use App\Filament\Pages\Tenancy\EditBranch;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
 use App\Filament\Pages\Tenancy\RegisterBranch;
 use App\Filament\Resources\OrderResource\Pages\SalesReport;
+use App\Filament\Resources\ProductResource\Pages\BranchReport;
+use App\Filament\Resources\ProductResource\Pages\ProductStockReport;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Models\Branch;
 use Filament\Facades\Filament;
@@ -39,7 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Poppins')
             ->databaseTransactions()
             ->databaseNotifications()
-            ->brandName(__('app.name',[],'ar'))
+            ->brandName(__('app.name', [], 'ar'))
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             ->favicon(asset('asset/images/logo/gas 200.png'))
             /* ->colors([
@@ -81,15 +83,8 @@ class AdminPanelProvider extends PanelProvider
             //->brandLogo(asset('asset/images/logo/gas 200.png'))
             //->registration()
             ->tenant(Branch::class, slugAttribute: 'slug')
-            ->when(
-                // Condition: Check if the logged-in user's email is the specific one
-                Auth::check() && Auth::user()->email === 'dyahunter35@gmail.com',
-
-                // Callback: This logic only runs if the condition is true
-                fn(Panel $panel) => $panel
-                    ->tenantRegistration(RegisterBranch::class)
-                    ->tenantProfile(EditBranch::class)
-            )
+            ->tenantRegistration(RegisterBranch::class)
+            ->tenantProfile(EditBranch::class)
             // disable user impersonation
             //->errorNotifications(false)
 
@@ -97,7 +92,8 @@ class AdminPanelProvider extends PanelProvider
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
                 MainDashboard::class,
-                //SalesReport::class
+                BranchReport::class,
+                ProductStockReport::class
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([

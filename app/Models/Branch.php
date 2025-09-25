@@ -54,4 +54,10 @@ class Branch extends Model
     {
         return $this->hasMany(StockHistory::class);
     }
+
+
+    public function stockHistories(): HasMany
+    {
+        return $this->hasMany(StockHistory::class);
+    }
 }

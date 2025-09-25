@@ -33,8 +33,11 @@ class StockHistory extends Model
         // This event fires AFTER a new StockHistory record is created.
         static::created(function (StockHistory $history) {
             $servies = new InventoryService;
+
             $servies->updateAllBranches();
+
             $product = $history->product;
+
             if (($product->total_stock >= $product->security_stock) && $product->low_stock_notified_at)
                 $product->update(['low_stock_notified_at' => null]);
         });

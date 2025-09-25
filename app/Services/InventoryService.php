@@ -89,7 +89,7 @@ class InventoryService
 
             // التحقق من التوفر بعد قفل الصف.
             if ($currentQty < $quantity) {
-                throw new Exception("الكمية المطلوبة للمنتج '{$product->name}' غير متوفرة في الفرع '{$branch->name}'.");
+                throw new Exception("الكمية المطلوبة للمنتج '{$product->name}' غير متوفرة'.");
             }
 
             $newQty = $currentQty - $quantity;
@@ -136,8 +136,6 @@ class InventoryService
         $total = StockHistory::where('product_id', $product->id)
             ->where('branch_id', $branch->id)
             ->sum(DB::raw('CASE WHEN type = "increase" or type = "initial" THEN quantity_change ELSE -quantity_change END'));
-
-        dd($total);
 
         // Step 2: Update the 'branch_product' pivot table by finding the correct row.
         return DB::table('branch_product')

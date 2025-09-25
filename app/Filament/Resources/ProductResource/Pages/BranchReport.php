@@ -10,12 +10,35 @@ use App\Services\InventoryService;
 use Filament\Resources\Pages\Page;
 use Filament\Actions;
 use Filament\Facades\Filament;
+use Illuminate\Contracts\Support\Htmlable;
 
 class BranchReport extends Page
 {
     protected static string $resource = ProductResource::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-document-chart-bar';
+
+    protected static bool $isScopedToTenant = true;
+
+    protected static bool $shouldRegisterNavigation = true;
+
+        protected static ?int $navigationSort = 7;
+
+    // --- NAVIGATION ---
+    public function getTitle(): string | Htmlable
+    {
+        return __('branch_reports.single_branch.label', ['b' => Filament::getTenant()->name]);
+    }
+    public static function getNavigationLabel(): string
+    {
+        return __('branch_reports.single_branch.model_label');
+    }
+
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('branch_reports.navigation.group');
+    }
 
     // protected static string $view = 'filament.resources.product-resource.pages.product-stock-report';
     protected static string $view = 'filament.resources.product-resource.pages.branch-report';

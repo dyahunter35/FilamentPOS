@@ -42,14 +42,18 @@
                                   <th scope="col" class="px-6 py-4 font-semibold text-center">
                                       المبيعات
                                   </th>
-                                  <th scope="col" class="px-6 py-4 font-semibold text-center">المجموع الكلي</th>
+                                  <th scope="col" class="px-6 py-4 font-semibold text-center">
+                                      المجموع الكلي
+                                  </th>
                               </tr>
                           </thead>
 
                           <!-- Table Body -->
                           <tbody>
                               @forelse ($products as $product)
-
+                                  @php
+                                      $p = $product->history->where('branch_id', $branch->id);
+                                  @endphp
                                   <tr
                                       class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
                                       <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
@@ -57,13 +61,13 @@
                                       </td>
 
                                       <td class="px-6 py-4 text-center">
-                                          {{ $product->history->where('type', StockCase::Initial)->sum('quantity_change') }}
+                                          {{ $p->where('type', StockCase::Initial)->sum('quantity_change') }}
                                       </td>
                                       <td class="px-6 py-4 text-center">
-                                          {{ $product->history->where('type', StockCase::Increase)->sum('quantity_change') }}
+                                          {{ $p->where('type', StockCase::Increase)->sum('quantity_change') }}
                                       </td>
                                       <td class="px-6 py-4 text-center">
-                                          {{ $product->history->where('type', StockCase::Decrease)->sum('quantity_change') }}
+                                          {{ $p->where('type', StockCase::Decrease)->sum('quantity_change') }}
                                       </td>
                                       <td class="px-6 py-4 text-center font-semibold text-gray-900">
                                           {{ number_format($product->stock_for_current_branch ?? 0) }}</td>
