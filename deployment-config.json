@@ -1,0 +1,12 @@
+[
+  {
+    "name": "server-1",
+    "ip": "ftp.gassudan.com",
+    "username": "gassudan",
+    "password": "Gas_app_123",
+    "port": "21",
+    "beforeHooks": "",
+    "afterHooks": "",
+    "path": "/public_html/mohammed-hashim.sd/"
+  }
+]
