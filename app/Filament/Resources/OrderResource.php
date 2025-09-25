@@ -446,7 +446,7 @@ class OrderResource extends Resource
     public static function getStatusAndTotalsFormSchema(): array
     {
         return [
-            Forms\Components\DatePicker::make('created_at')
+            Forms\Components\DateTimePicker::make('created_at')
                 ->label(__('order.fields.created_at.label'))
                 ->default(now()),
             Forms\Components\ToggleButtons::make('status')
