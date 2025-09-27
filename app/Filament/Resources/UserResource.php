@@ -66,7 +66,7 @@ class UserResource extends Resource
                             ->label(__('user.fields.password.label'))
                             ->placeholder(__('user.fields.password.placeholder'))
                             ->password()
-                            ->required()
+                            ->required(fn (string $context): bool => $context === 'create')
                             ->revealable(filament()->arePasswordsRevealable())
                             ->rule(Password::default())
                             ->autocomplete('new-password')
