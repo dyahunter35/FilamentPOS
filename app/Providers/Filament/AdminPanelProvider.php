@@ -41,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->font('Poppins')
             ->databaseTransactions()
             ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->brandName(__('app.name', [], 'ar'))
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             ->favicon(asset('asset/images/logo/gas 200.png'))
