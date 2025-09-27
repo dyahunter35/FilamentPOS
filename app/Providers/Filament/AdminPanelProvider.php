@@ -36,7 +36,7 @@ class AdminPanelProvider extends PanelProvider
         return $panel
             ->default()
             ->id('admin')
-            ->path('/admin')
+            ->path('/')
             ->login()
             ->font('Poppins')
             ->databaseTransactions()
