@@ -7,19 +7,26 @@
       <div class="text-gray-800">
 
           <!-- Main Container -->
-          <main class="w-full  mx-auto p-4 sm:p-6 md:p-8 m-4" id="report-content">
+          <main class="w-full p-4 m-4 mx-auto sm:p-6 md:p-8" id="report-content">
 
               <!-- Report Card -->
-              <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+              <div class="overflow-hidden bg-white shadow-lg rounded-xl">
 
                   <!-- Header Section -->
-                  <header class="border-b border-gray-200 p-6">
-                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                          <div>
-                              <h1 class="text-2xl font-bold text-gray-900">تقرير المنتجات للفروع </h1>
-                              <p class="text-md text-gray-500 mt-1">{{ $branch->name }}</p>
+                  <header class="p-6 border-b border-gray-200">
+                      <div class="flex flex-row items-start justify-between gap-4">
+
+                          <div class="flex ">
+                              <img alt="" src="{{ __('app.image') }}" class="w-16 mx-2" />
+
+                              <div class="flex flex-col items-start justify-between sm:flex-row sm:items-center">
+                                  <div>
+                                      <h1 class="text-2xl font-bold text-gray-900">تقرير المنتجات للفروع </h1>
+                                      <p class="mt-1 text-gray-500 text-md">{{ $branch->name }}</p>
+                                  </div>
+                              </div>
                           </div>
-                          <div class="text-sm text-gray-600 mt-4 sm:mt-0 text-left sm:text-right">
+                          <div class="mt-4 text-lg text-left text-gray-600 sm:mt-0 sm:text-right">
                               <p class="font-semibold">تاريخ التقرير:</p>
                               <p>{{ now()->format('Y-m-d') }}</p>
                           </div>
@@ -30,7 +37,7 @@
                   <div class="overflow-x-auto">
                       <table class="w-full text-sm text-right text-gray-600">
                           <!-- Table Head -->
-                          <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                          <thead class="text-xs text-gray-700 uppercase border-b border-gray-200 bg-gray-50">
                               <tr>
                                   <th scope="col" class="px-6 py-4 font-semibold">المنتج</th>
                                   <th scope="col" class="px-6 py-4 font-semibold text-center">
@@ -55,7 +62,7 @@
                                       $p = $product->history->where('branch_id', $branch->id);
                                   @endphp
                                   <tr
-                                      class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
+                                      class="transition-colors duration-200 bg-white border-b border-gray-200 hover:bg-gray-50">
                                       <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                           {{ $product->name }}
                                       </td>
@@ -69,7 +76,7 @@
                                       <td class="px-6 py-4 text-center">
                                           {{ $p->where('type', StockCase::Decrease)->sum('quantity_change') }}
                                       </td>
-                                      <td class="px-6 py-4 text-center font-semibold text-gray-900">
+                                      <td class="px-6 py-4 font-semibold text-center text-gray-900">
                                           {{ number_format($product->stock_for_current_branch ?? 0) }}</td>
                                       {{-- <td class="px-6 py-4 text-center">
                                         <span
@@ -87,7 +94,7 @@
                                 <td class="px-6 py-4 text-base">الإجمالي</td>
                                 <td class="px-6 py-4 text-center">5,920</td>
                                 <td class="px-6 py-4 text-center">--</td>
-                                <td class="px-6 py-4 text-center text-base">$2,117,780</td>
+                                <td class="px-6 py-4 text-base text-center">$2,117,780</td>
                                 <td class="px-6 py-4 text-center">--</td>
                             </tr>
                         </tfoot> --}}

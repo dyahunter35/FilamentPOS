@@ -47,8 +47,12 @@ class AdminPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
             ->brandName(fn() => __('app.name'))
+            ->font('Sans')
+            ->colors([
+                'primary' => 'rgb(201,88,47)',
+            ])
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
-            ->favicon(asset('asset/images/logo/gas 200.png'))
+            ->favicon(asset('asset/images/favicon.ico'))
             /* ->colors([
                 'primary' => [
                     'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق
@@ -134,7 +138,7 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ]),
-                    new Lockscreen()  // <- Add this
+                new Lockscreen()  // <- Add this
 
             ])
             ->tenantMiddleware([
@@ -142,7 +146,7 @@ class AdminPanelProvider extends PanelProvider
             ], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
-                Locker::class, 
+                Locker::class,
             ]);
     }
 }

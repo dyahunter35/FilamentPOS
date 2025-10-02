@@ -1,5 +1,6 @@
 <?php
 
 return [
-    'name' => 'OMT Import & Export Company',
+    'name' => 'Al-Bushra Consulting',
+    'image' => asset('asset/images/logo.png')
 ];

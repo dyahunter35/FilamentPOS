@@ -7,7 +7,7 @@
 
                         {{-- <img src="{{ asset('asset/images/logo/gas 200.png') }}" class="w-16"> --}}
                         <div class="flex flex-row items-start gap-4">
-                            <img alt="" src="{{ asset('asset/images/logo/gas 200.png') }}" class="w-16" />
+                            <img alt="" src="{{ __('app.image') }}" class="w-16" />
 
                             <div>
                                 <div class="text-2xl font-bold">
@@ -87,7 +87,9 @@
                                     <div class="flex justify-between gap-4">
                                         <div class="text-gray-400">
                                             {{ trans('filament-invoices::messages.invoices.view.status') }} : </div>
-                                        <div>{{ $this->getRecord()->status->getLabel() }}</div>
+                                        <x-filament::badge
+                                        color="{{ $this->getRecord()->status->getColor() }}"
+                                        icon="{{ $this->getRecord()->status->getIcon() }}">{{ $this->getRecord()->status->getLabel() }}</x-filament::badge>
                                     </div>
                                     {{-- <div class="flex justify-between gap-4">
                                         <div class="text-gray-400">
