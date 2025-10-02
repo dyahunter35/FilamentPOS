@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1156f9d2782b0c1cd4d4204e784d7a97",
+    "content-hash": "04b49a6b3d02a20d1868e213fdeb5e93",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3717,6 +3717,82 @@
                 }
             ],
             "time": "2025-01-27T12:07:53+00:00"
+        },
+        {
+            "name": "marjose123/filament-lockscreen",
+            "version": "v2.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MarJose123/filament-lockscreen.git",
+                "reference": "49a245083e023335c010f8ff3b6338146436cc11"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MarJose123/filament-lockscreen/zipball/49a245083e023335c010f8ff3b6338146436cc11",
+                "reference": "49a245083e023335c010f8ff3b6338146436cc11",
+                "shasum": ""
+            },
+            "require": {
+                "danharrin/livewire-rate-limiting": "^1.0|^2.1.0",
+                "filament/filament": "^v3.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "php": "^8.1|^8.0|^8.2|^8.3|^8.4",
+                "spatie/laravel-package-tools": "^1.13.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "nunomaduro/collision": "^6.0|^7.0|^8.0",
+                "orchestra/testbench": "^7.0|^8.0|^9.0",
+                "pestphp/pest": "^1.21|^2.0",
+                "pestphp/pest-plugin-laravel": "^1.1|^2.0",
+                "phpunit/phpunit": "^9.5|^10.0|^11.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "lockscreen\\FilamentLockscreen\\FilamentLockscreenServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "lockscreen\\FilamentLockscreen\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Marjose",
+                    "email": "hypernate1@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "This is my package filament-lockscreen",
+            "homepage": "https://github.com/marjose123/filament-lockscreen",
+            "keywords": [
+                "MarJose123",
+                "filament-lockscreen",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/MarJose123/filament-lockscreen/issues",
+                "source": "https://github.com/MarJose123/filament-lockscreen/tree/v2.6.1"
+            },
+            "funding": [
+                {
+                    "url": "https://paypal.me/whoami213",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/MarJose123",
+                    "type": "github"
+                }
+            ],
+            "time": "2025-04-02T05:11:54+00:00"
         },
         {
             "name": "masterminds/html5",

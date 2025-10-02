@@ -29,6 +29,10 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use lockscreen\FilamentLockscreen\Lockscreen;
+use lockscreen\FilamentLockscreen\Http\Middleware\Locker;
+use lockscreen\FilamentLockscreen\Http\Middleware\LockerTimer;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -42,7 +46,7 @@ class AdminPanelProvider extends PanelProvider
             ->databaseTransactions()
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s')
-            ->brandName(__('app.name', [], 'ar'))
+            ->brandName(fn() => __('app.name'))
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             ->favicon(asset('asset/images/logo/gas 200.png'))
             /* ->colors([
@@ -111,6 +115,7 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                LockerTimer::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
@@ -129,14 +134,15 @@ class AdminPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ]),
+                    new Lockscreen()  // <- Add this
 
-                //\TomatoPHP\FilamentInvoices\FilamentInvoicesPlugin::make()
             ])
             ->tenantMiddleware([
                 //SyncShieldTenant::class,
             ], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
+                Locker::class, 
             ]);
     }
 }

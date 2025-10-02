@@ -2,7 +2,7 @@
     <x-filament-panels::page>
         <x-filament::section>
             <div>
-                <div class="flex justify-between xl:gap-60 lg:gap-48 md:gap-16 sm:gap-8 sm:flex-row flex-col gap-4">
+                <div class="flex flex-col justify-between gap-4 xl:gap-60 lg:gap-48 md:gap-16 sm:gap-8 sm:flex-row">
                     <div class="w-full ">
 
                         {{-- <img src="{{ asset('asset/images/logo/gas 200.png') }}" class="w-16"> --}}
@@ -52,7 +52,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="w-full flex flex-col">
+                    <div class="flex flex-col w-full">
                         <div class="flex justify-end font-bold">
                             <div>
                                 <div>
@@ -101,23 +101,23 @@
                 </div>
 
                 <div>
-                    <div class="border border-gray-200 dark:border-gray-700 rounded-lg my-4 px-2">
+                    <div class="px-2 my-4 border border-gray-200 rounded-lg dark:border-gray-700">
                         <div class="flex flex-col">
                             <div
-                                class="flex justify-between  px-4 py-2 border-gray-200 dark:border-gray-700 font-bold border-b text-center">
-                                <div class="p-2 w-full">
+                                class="flex justify-between px-4 py-2 font-bold text-center border-b border-gray-200 dark:border-gray-700">
+                                <div class="w-full p-2">
                                     {{ trans('filament-invoices::messages.invoices.view.item') }}
                                 </div>
-                                <div class="p-2 w-full">
+                                <div class="w-full p-2">
                                     {{ trans('filament-invoices::messages.invoices.view.qty') }}
                                 </div>
-                                <div class="p-2 w-full">
+                                <div class="w-full p-2">
                                     {{ trans('filament-invoices::messages.invoices.view.price') }}
                                 </div>
-                                <div class="p-2 w-full">
+                                <div class="w-full p-2">
                                     {{ trans('filament-invoices::messages.invoices.view.discount') }}
                                 </div>
-                                <div class="p-2 w-full">
+                                <div class="w-full p-2">
                                     {{ trans('filament-invoices::messages.invoices.view.total') }}
                                 </div>
                             </div>
@@ -127,9 +127,9 @@
                             @foreach ($this->getRecord()->items as $key => $item)
                                 <div class="flex justify-between px-4 py-2">
                                     <div class="flex flex-col w-full">
-                                        <div class="flex justify-center items-center">
+                                        <div class="flex items-center justify-center">
                                             <div>
-                                                <div class="font-bold text-lg">
+                                                <div class="text-lg font-bold">
                                                     {{ $item->product?->name }}
                                                 </div>
                                                 @if ($item->description)
@@ -207,13 +207,13 @@
 
 
                     <div class="flex justify-between mt-6">
-                        <div class="flex flex-col justify-end gap-4 w-full">
+                        <div class="flex flex-col justify-end w-full gap-4">
                             @if ($this->getRecord()->is_bank_transfer)
                                 <div>
                                     <div class="mb-2 text-xl">
                                         {{ trans('filament-invoices::messages.invoices.view.bank_account') }}
                                     </div>
-                                    <div class="text-sm flex flex-col">
+                                    <div class="flex flex-col text-sm">
                                         <div>
                                             <span
                                                 clas="text-gray-400">{{ trans('filament-invoices::messages.invoices.view.name') }}</span>
@@ -270,14 +270,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="flex flex-col gap-2 mt-4  w-full">
+                        <div class="flex flex-col w-full gap-2 mt-4">
                             <div class="flex justify-between">
                                 <div class="font-bold">
                                     {{ trans('order.invoice.labels.subtotal') }}
                                 </div>
                                 <div>
                                     {{ number_format($this->getRecord()->total + $this->getRecord()->discount - $this->getRecord()->shipping - $this->getRecord()->install, 1) }}
-                                    <small class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                    <small class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
                             @if ($this->getRecord()->install > 0)
@@ -287,7 +287,7 @@
                                     </div>
                                     <div>
                                         {{ number_format($this->getRecord()->shipping, 1) }} <small
-                                            class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                            class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
                             @endif
@@ -299,7 +299,7 @@
                                     </div>
                                     <div>
                                         {{ number_format($this->getRecord()->install, 1) }} <small
-                                            class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                            class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
                             @endif
@@ -311,27 +311,27 @@
                                     </div>
                                     <div>
                                         {{ number_format($this->getRecord()->discount, 1) }} <small
-                                            class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                            class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
                             @endif
-                            <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+                            <div class="flex justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
                                 <div class="font-bold">
                                     {{ trans('filament-invoices::messages.invoices.view.total') }}
                                 </div>
                                 <div>
                                     {{ number_format($this->getRecord()->total, 1) }} <small
-                                        class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                        class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                 </div>
                             </div>
                             @if ($this->getRecord()->paid > 0)
-                                <div class="flex justify-between border-b border-gray-200 dark:border-gray-700 pb-4">
+                                <div class="flex justify-between pb-4 border-b border-gray-200 dark:border-gray-700">
                                     <div class="font-bold">
                                         {{ trans('filament-invoices::messages.invoices.view.paid') }}
                                     </div>
                                     <div>
                                         {{ number_format($this->getRecord()->paid, 1) }} <small
-                                            class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                            class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
                             @endif
@@ -344,7 +344,7 @@
                                     </div>
                                     <div>
                                         {{ number_format($this->getRecord()->total - $this->getRecord()->paid, 1) }}
-                                        <small class="text-md font-normal">{{ $this->getRecord()->currency }}</small>
+                                        <small class="font-normal text-md">{{ $this->getRecord()->currency }}</small>
                                     </div>
                                 </div>
                             @endif
@@ -353,7 +353,7 @@
                     </div>
 
                     @if ($this->getRecord()->notes)
-                        <div class="border-b border-gray-200 dark:border-gray-700 my-4"></div>
+                        <div class="my-4 border-b border-gray-200 dark:border-gray-700"></div>
                         <div>
                             <div class="mb-2 text-xl">
                                 {{ trans('filament-invoices::messages.invoices.view.notes') }}
@@ -372,9 +372,9 @@
 
                 <!-- Header Section -->
                 <header class="border-b border-gray-200 ">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <div class="flex flex-col items-start justify-between sm:flex-row sm:items-center">
                         <div>
-                            <h1 class="text-l font-bold text-gray-900 p-3">المدفوعات</h1>
+                            <h1 class="p-3 font-bold text-gray-900 text-l">المدفوعات</h1>
                         </div>
 
                     </div>
@@ -384,7 +384,7 @@
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-right text-gray-600">
                         <!-- Table Head -->
-                        <thead class="text-l text-gray-700 uppercase bg-white border-b border-gray-200">
+                        <thead class="text-gray-700 uppercase bg-white border-b border-gray-200 text-l">
                             <tr>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">التاريخ</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">
@@ -401,14 +401,14 @@
                             @forelse ($this->getRecord()->orderMetas()->latest()->get() as $meta)
 
                                 <tr
-                                    class="bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors duration-200">
-                                    <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap  text-center">
+                                    class="transition-colors duration-200 bg-white border-b border-gray-200 hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium text-center text-gray-900 whitespace-nowrap">
                                         {{ $meta->created_at->toDateString() }}
                                     </td>
 
                                     <td class="px-6 py-4 text-center">
                                         {{ number_format($meta->value, 1) }} <small
-                                            class="text-md font-normal">SDG</small>
+                                            class="font-normal text-md">SDG</small>
                                     </td>
                                     <td class="px-6 py-4 text-center">
                                         {{ \App\Enums\Payment::tryFrom($meta->group)->getLabel() }}

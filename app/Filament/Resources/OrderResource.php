@@ -479,9 +479,27 @@ class OrderResource extends Resource
                 Forms\Components\Select::make('product_id')
                     ->label(__('order.fields.items.product.label'))
                     ->placeholder(__('order.fields.items.product.placeholder'))
-                    ->options(
-                        Product::whereHas('branches', fn($query) => $query->where('branches.id', Filament::getTenant()->id))
-                            ->get()
+                    ->options(function ($get, $record) {
+                        $query = Product::query();
+
+                        if ($record) {
+                            // لو تعديل: نجيب منتجات الفرع + المنتج الحالي
+                            $query->whereHas(
+                                'branches',
+                                fn($q) =>
+                                $q->where('branches.id', Filament::getTenant()->id)
+                            )
+                                ->orWhere('id', $record->product_id);
+                        } else {
+                            // لو إضافة: منتجات الفرع فقط
+                            $query->whereHas(
+                                'branches',
+                                fn($q) =>
+                                $q->where('branches.id', Filament::getTenant()->id)
+                            );
+                        }
+
+                        return $query->get()
                             ->mapWithKeys(fn(Product $product) => [
                                 $product->id => sprintf(
                                     '%s - %s ($%s) [%s]',
@@ -490,8 +508,8 @@ class OrderResource extends Resource
                                     $product->price,
                                     $product->stock_for_current_branch
                                 )
-                            ])
-                    )
+                            ]);
+                    })
                     ->required()
                     ->disableOptionsWhenSelectedInSiblingRepeaterItems()
                     ->columnSpan([
@@ -544,7 +562,7 @@ class OrderResource extends Resource
             $itemDiscount = (float)($item['sub_discount'] ?? 0);
 
             $subTotal = max(0, ($unitPrice - $itemDiscount)) * $quantity;
-            $item['sub_total'] = self::truncate_float( $subTotal,2);
+            $item['sub_total'] = self::truncate_float($subTotal, 2);
             return $item;
         });
 
@@ -557,7 +575,7 @@ class OrderResource extends Resource
         $shipping = (float)($get('shipping') ?? 0);
         $installation = (float)($get('install') ?? 0);
 
-        $set('discount', self::truncate_float( $totalDiscount,2));
+        $set('discount', self::truncate_float($totalDiscount, 2));
         $set('total', self::truncate_float($totalItemsPrice + $installation + $shipping, 2));
     }
 

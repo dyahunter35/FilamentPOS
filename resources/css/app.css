@@ -14,3 +14,10 @@
 }
 
 @source '../../../../vendor/bezhansalleh/filament-language-switch/resources/views/**/*.blade.php';
+
+
+/* @import '../../vendor/filament/filament/resources/css/theme.css';
+
+@config './tailwind.nord.config.js';
+
+ */
