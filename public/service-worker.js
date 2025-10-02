@@ -10,22 +10,22 @@
       Need an introduction to Service Workers? Check our docs here: https://docs.pwabuilder.com/#/home/sw-intro
       Want to learn more about how our Service Worker generation works? Check our docs here: https://docs.pwabuilder.com/#/studio/existing-app?id=add-a-service-worker
 
-      Did you know that Service Workers offer many more capabilities than just offline? 
+      Did you know that Service Workers offer many more capabilities than just offline?
         - Background Sync: https://microsoft.github.io/win-student-devs/#/30DaysOfPWA/advanced-capabilities/06
         - Periodic Background Sync: https://web.dev/periodic-background-sync/
         - Push Notifications: https://microsoft.github.io/win-student-devs/#/30DaysOfPWA/advanced-capabilities/07?id=push-notifications-on-the-web
         - Badges: https://microsoft.github.io/win-student-devs/#/30DaysOfPWA/advanced-capabilities/07?id=application-badges
     */
 
-    const HOSTNAME_WHITELIST = [
+   /*  const HOSTNAME_WHITELIST = [
         self.location.hostname,
         'fonts.gstatic.com',
         'fonts.googleapis.com',
         'cdn.jsdelivr.net'
-    ]
+    ] */
 
     // The Util Function to hack URLs of intercepted requests
-    const getFixedUrl = (req) => {
+    /* const getFixedUrl = (req) => {
         var now = Date.now()
         var url = new URL(req.url)
 
@@ -44,7 +44,7 @@
             url.search += (url.search ? '&' : '?') + 'cache-bust=' + now
         }
         return url.href
-    }
+    } */
 
     /**
      *  @Lifecycle Activate
@@ -52,9 +52,9 @@
      *
      *  waitUntil(): activating ====> activated
      */
-    self.addEventListener('activate', event => {
+    /* self.addEventListener('activate', event => {
       event.waitUntil(self.clients.claim())
-    })
+    }) */
 
     /**
      *  @Functional Fetch
@@ -62,7 +62,7 @@
      *
      *  void respondWith(Promise<Response> r)
      */
-    self.addEventListener('fetch', event => {
+    /* self.addEventListener('fetch', event => {
     // Skip some of cross-origin requests, like those for Google Analytics.
     if (HOSTNAME_WHITELIST.indexOf(new URL(event.request.url).hostname) > -1) {
         // Stale-while-revalidate
@@ -80,14 +80,15 @@
         event.respondWith(
         Promise.race([fetched.catch(_ => cached), cached])
             .then(resp => resp || fetched)
-            .catch(_ => { /* eat any errors */ })
+            .catch(_ => { /* eat any errors *})
         )
 
         // Update the cache with the version we fetched (only for ok status)
         event.waitUntil(
         Promise.all([fetchedCopy, caches.open("pwa-cache")])
             .then(([response, cache]) => response.ok && cache.put(event.request, response))
-            .catch(_ => { /* eat any errors */ })
+            .catch(_ => { /* eat any errors *})
         )
     }
     })
+ */
