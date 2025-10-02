@@ -59,12 +59,12 @@ class AdminPanelProvider extends PanelProvider
                 <<<HTML
                         <link rel="manifest" href="/manifest.json">
                         <meta name="theme-color" content="#0f172a">
-                        <script>
+                        <!-- <script>
                             if ('serviceWorker' in navigator) {
                                 navigator.serviceWorker.register('/service-worker.js')
                                     .then(() => console.log("Service Worker Registered"));
                             }
-                        </script>
+                        </script> -->
                     HTML
             )
             /* ->colors([
