@@ -59,6 +59,10 @@ class AdminPanelProvider extends PanelProvider
                 <<<HTML
                         <link rel="manifest" href="/manifest.json">
                         <meta name="theme-color" content="#0f172a">
+                        <link rel="icon" href="/asset/images/icons/manifest-icon-192.png" sizes="192x192" type="image/png"/>
+                        <link rel="apple-touch-startup-image" href="/asset/images/icons/manifest-icon-512.png">
+                        <link rel="apple-touch-icon" sizes="180x180" href="/asset/images/icons/manifest-icon-512.png">
+
                         <!-- <script>
                             if ('serviceWorker' in navigator) {
                                 navigator.serviceWorker.register('/service-worker.js')
