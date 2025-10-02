@@ -53,6 +53,20 @@ class AdminPanelProvider extends PanelProvider
             ])
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             ->favicon(asset('asset/images/favicon.ico'))
+            ->renderHook(
+                'panels::head.end', // ⬅ يضيف قبل </head>
+                fn(): string =>
+                <<<HTML
+                        <link rel="manifest" href="/manifest.json">
+                        <meta name="theme-color" content="#0f172a">
+                        <script>
+                            if ('serviceWorker' in navigator) {
+                                navigator.serviceWorker.register('/service-worker.js')
+                                    .then(() => console.log("Service Worker Registered"));
+                            }
+                        </script>
+                    HTML
+            )
             /* ->colors([
                 'primary' => [
                     'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق
