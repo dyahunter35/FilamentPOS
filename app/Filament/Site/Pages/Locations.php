@@ -6,7 +6,7 @@ use Filament\Pages\Page;
 
 class Locations extends Page
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.site.pages.locations';
+    protected string $view = 'filament.site.pages.locations';
 }

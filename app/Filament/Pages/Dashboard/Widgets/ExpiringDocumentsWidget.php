@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages\Dashboard\Widgets;
 
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\Action;
 use App\Models\VendorFile;
 use Carbon\Carbon;
 use Filament\Tables;
@@ -26,15 +28,15 @@ class ExpiringDocumentsWidget extends BaseWidget
                     ->latest('expiry_date')
             )
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->label(__('dashboard.table.document_name'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('vendor.name')
+                TextColumn::make('vendor.name')
                     ->label(__('dashboard.vendor'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type')
+                TextColumn::make('type')
                     ->label(__('dashboard.table.document_type')),
-                Tables\Columns\TextColumn::make('expiry_date')
+                TextColumn::make('expiry_date')
                     ->label(__('dashboard.expires'))
                     ->date()
                     ->sortable()
@@ -42,21 +44,21 @@ class ExpiringDocumentsWidget extends BaseWidget
                         $daysLeft = Carbon::parse($state)->diffInDays(now());
                         return Carbon::parse($state)->format('Y-m-d') . ' (' . __('dashboard.stats.days_left', ['days' => $daysLeft]) . ')';
                     }),
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->label(__('dashboard.table.status'))
                     ->badge(),
             ])
             ->filters([
                 //
             ])
-            ->actions([
-                Tables\Actions\Action::make('view')
+            ->recordActions([
+                Action::make('view')
                     ->label(__('dashboard.actions.view'))
                     ->url(fn (VendorFile $record): string => route('filament.admin.resources.vendors.edit', $record->vendor_id))
                     ->openUrlInNewTab()
                     ->icon('heroicon-o-eye'),
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 //
             ])
             ->emptyStateHeading(__('dashboard.alerts.no_expiring_documents'))

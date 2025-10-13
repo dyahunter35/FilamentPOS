@@ -2,6 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Site\Pages\Home;
+use Filament\Widgets\AccountWidget;
+use Filament\Widgets\FilamentInfoWidget;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,16 +34,16 @@ class SitePanelProvider extends PanelProvider
             ->topNavigation()
             ->discoverResources(in: app_path('Filament/Site/Resources'), for: 'App\\Filament\\Site\\Resources')
             ->discoverPages(in: app_path('Filament/Site/Pages'), for: 'App\\Filament\\Site\\Pages')
-            ->homeUrl(fn() => Pages\Home::getUrl(panel: 'site'))
+            ->homeUrl(fn() => Home::getUrl(panel: 'site'))
             ->pages([
-                Pages\Home::class,
+                Home::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Site/Widgets'), for: 'App\\Filament\\Site\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                AccountWidget::class,
+                FilamentInfoWidget::class,
             ])
-            ->viteTheme('resources/css/filament/site/theme.css')
+            //->viteTheme('resources/css/filament/site/theme.css')
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

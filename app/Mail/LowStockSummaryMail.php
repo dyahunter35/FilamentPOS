@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Collection;
@@ -17,7 +18,7 @@ class LowStockSummaryMail extends Mailable
     /**
      * The collection of products that are low on stock.
      *
-     * @var \Illuminate\Database\Eloquent\Collection
+     * @var Collection
      */
     public Collection $lowStockProducts;
 
@@ -52,7 +53,7 @@ class LowStockSummaryMail extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {

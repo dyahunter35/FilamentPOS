@@ -6,9 +6,9 @@ use App\Filament\Pages\Dashboard\MainDashboard;
 use App\Filament\Pages\Tenancy\EditBranch;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
 use App\Filament\Pages\Tenancy\RegisterBranch;
-use App\Filament\Resources\OrderResource\Pages\SalesReport;
-use App\Filament\Resources\ProductResource\Pages\BranchReport;
-use App\Filament\Resources\ProductResource\Pages\ProductStockReport;
+use App\Filament\Resources\Orders\Pages\SalesReport;
+use App\Filament\Resources\Products\Pages\BranchReport;
+use App\Filament\Resources\Products\Pages\ProductStockReport;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Models\Branch;
 use Filament\Facades\Filament;
@@ -51,6 +51,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => 'rgb(201,88,47)',
             ])
+            ->viteTheme('resources/css/filament/admin/theme.css')
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             ->favicon(asset('asset/images/favicon.ico'))
             ->renderHook(
@@ -140,7 +141,7 @@ class AdminPanelProvider extends PanelProvider
                 LockerTimer::class,
             ])
             ->plugins([
-                FilamentShieldPlugin::make()
+                /*  FilamentShieldPlugin::make()
                     ->gridColumns([
                         'default' => 1,
                         'sm' => 2,
@@ -155,7 +156,7 @@ class AdminPanelProvider extends PanelProvider
                     ->resourceCheckboxListColumns([
                         'default' => 1,
                         'sm' => 2,
-                    ]),
+                    ]), */
                 new Lockscreen()  // <- Add this
 
             ])
