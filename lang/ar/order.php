@@ -143,6 +143,9 @@ return [
             'label' => 'آخر تعديل في',
             'placeholder' => '',
         ],
+        'payment_date' => [
+            'label' => 'تاريخ الدفع',
+        ],
         'payment_method' => [
             'label' => 'طريقة الدفع',
             'placeholder' => 'اختر طريقة الدفع',
@@ -210,7 +213,8 @@ return [
     'invoice' => [
         'labels' => [
             'today' => 'اليوم',
-            'subtotal' => 'قبل الخصم'
+            'subtotal' => 'قبل الخصم',
+            'payment' => 'سجل الدفعيات'
         ]
     ]
 ];

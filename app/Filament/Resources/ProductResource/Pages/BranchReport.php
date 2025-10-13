@@ -10,6 +10,7 @@ use App\Services\InventoryService;
 use Filament\Resources\Pages\Page;
 use Filament\Actions;
 use Filament\Facades\Filament;
+use Filament\Notifications\Notification;
 use Illuminate\Contracts\Support\Htmlable;
 
 class BranchReport extends Page
@@ -22,7 +23,7 @@ class BranchReport extends Page
 
     protected static bool $shouldRegisterNavigation = true;
 
-        protected static ?int $navigationSort = 7;
+    protected static ?int $navigationSort = 7;
 
     // --- NAVIGATION ---
     public function getTitle(): string | Htmlable
@@ -57,9 +58,8 @@ class BranchReport extends Page
 
         // جلب كل المنتجات مع علاقاتها بالفروع
         // نستخدم withSum لحساب الإجمالي بكفاءة عالية
-        $products = Product::query()
-            ->with('history')
-            ->withOutGlobalScope(IsVisibleScope::class)
+        $products = $branch->products()
+            // ->withOutGlobalScope(IsVisibleScope::class)
             // ->with('branches') // لجلب بيانات pivot لكل فرع
             ->get();
 
@@ -87,6 +87,10 @@ class BranchReport extends Page
                 ->action(function () {
                     $servies = new InventoryService;
                     $servies->updateAllBranches();
+                    Notification::make('update')
+                        ->body('done')
+                        ->success()
+                        ->send();
                 }),
         ];
     }

@@ -12,8 +12,8 @@ return [
         'plural_label' => 'تقرير المخزن',
         'model_label' => 'تقرير بضاعة الفروع'
     ],
-     'all_branch' => [
-        'label' => 'تقرير جمميع المخازن',
+    'all_branch' => [
+        'label' => 'تقرير جميع المخازن',
         'plural_label' => 'تقرير المخازن',
         'model_label' => 'تقرير البضاعة الكلي'
     ],

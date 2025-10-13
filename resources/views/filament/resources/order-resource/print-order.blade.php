@@ -87,9 +87,8 @@
                                     <div class="flex justify-between gap-4">
                                         <div class="text-gray-400">
                                             {{ trans('filament-invoices::messages.invoices.view.status') }} : </div>
-                                        <x-filament::badge
-                                        color="{{ $this->getRecord()->status->getColor() }}"
-                                        icon="{{ $this->getRecord()->status->getIcon() }}">{{ $this->getRecord()->status->getLabel() }}</x-filament::badge>
+                                        <x-filament::badge color="{{ $this->getRecord()->status->getColor() }}"
+                                            icon="{{ $this->getRecord()->status->getIcon() }}">{{ $this->getRecord()->status->getLabel() }}</x-filament::badge>
                                     </div>
                                     {{-- <div class="flex justify-between gap-4">
                                         <div class="text-gray-400">
@@ -373,10 +372,11 @@
 
 
                 <!-- Header Section -->
-                <header class="border-b border-gray-200 ">
+                <header class="border-b border-gray-200 dark:text-white">
                     <div class="flex flex-col items-start justify-between sm:flex-row sm:items-center">
                         <div>
-                            <h1 class="p-3 font-bold text-gray-900 text-l">المدفوعات</h1>
+                            <h1 class="py-3 font-bold dark:text-white text-l">
+                                {{ __('order.invoice.labels.payment') }}</h1>
                         </div>
 
                     </div>
@@ -384,16 +384,17 @@
 
                 <!-- Table Container for Responsiveness -->
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-right text-gray-600">
+                    <table class="w-full text-sm text-right text-white-600">
                         <!-- Table Head -->
-                        <thead class="text-gray-700 uppercase bg-white border-b border-gray-200 text-l">
+                        <thead class="uppercase border-b border-gray-200 text-white-700 text-l">
                             <tr>
-                                <th scope="col" class="px-6 py-4 font-semibold text-center">التاريخ</th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">
-                                    المبلغ
+                                    {{ __('order.fields.payment_date.label') }}</th>
+                                <th scope="col" class="px-6 py-4 font-semibold text-center">
+                                    {{ __('order.fields.amount.label') }}
                                 </th>
                                 <th scope="col" class="px-6 py-4 font-semibold text-center">
-                                    طريقة الدفع
+                                    {{ __('order.fields.payment_method.label') }}
                                 </th>
                             </tr>
                         </thead>
@@ -402,8 +403,7 @@
                         <tbody>
                             @forelse ($this->getRecord()->orderMetas()->latest()->get() as $meta)
 
-                                <tr
-                                    class="transition-colors duration-200 bg-white border-b border-gray-200 hover:bg-gray-50">
+                                <tr class="transition-colors duration-200 border-b border-gray-200 hover:bg-gray-50">
                                     <td class="px-6 py-4 font-medium text-center text-gray-900 whitespace-nowrap">
                                         {{ $meta->created_at->toDateString() }}
                                     </td>
@@ -412,8 +412,13 @@
                                         {{ number_format($meta->value, 1) }} <small
                                             class="font-normal text-md">SDG</small>
                                     </td>
+                                    @php
+                                        $method = \App\Enums\Payment::tryFrom($meta->group) ?? \App\Enums\Payment::Cash;
+                                    @endphp
                                     <td class="px-6 py-4 text-center">
-                                        {{ \App\Enums\Payment::tryFrom($meta->group)->getLabel() }}
+                                        <x-filament::badge color="{{ $method->getColor() }}">
+                                            {{ $method->getLabel() }}
+                                        </x-filament::badge>
                                     </td>
 
                                     {{-- <td class="px-6 py-4 text-center">
