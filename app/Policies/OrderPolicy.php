@@ -1,108 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
-use App\Models\User;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Order;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class OrderPolicy
 {
     use HandlesAuthorization;
-
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_order');
+        return $authUser->can('ViewAny:Order');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Order $order): bool
+    public function view(AuthUser $authUser, Order $order): bool
     {
-        return $user->can('view_order');
+        return $authUser->can('View:Order');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_order');
+        return $authUser->can('Create:Order');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Order $order): bool
+    public function update(AuthUser $authUser, Order $order): bool
     {
-        return $user->can('update_order');
+        return $authUser->can('Update:Order');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Order $order): bool
+    public function delete(AuthUser $authUser, Order $order): bool
     {
-        return $user->can('delete_order');
+        return $authUser->can('Delete:Order');
     }
 
-    /**
-     * Determine whether the user can bulk delete.
-     */
-    public function deleteAny(User $user): bool
+    public function restore(AuthUser $authUser, Order $order): bool
     {
-        return $user->can('delete_any_order');
+        return $authUser->can('Restore:Order');
     }
 
-    /**
-     * Determine whether the user can permanently delete.
-     */
-    public function forceDelete(User $user, Order $order): bool
+    public function forceDelete(AuthUser $authUser, Order $order): bool
     {
-        return $user->can('force_delete_order');
+        return $authUser->can('ForceDelete:Order');
     }
 
-    /**
-     * Determine whether the user can permanently bulk delete.
-     */
-    public function forceDeleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_order');
+        return $authUser->can('ForceDeleteAny:Order');
     }
 
-    /**
-     * Determine whether the user can restore.
-     */
-    public function restore(User $user, Order $order): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('restore_order');
+        return $authUser->can('RestoreAny:Order');
     }
 
-    /**
-     * Determine whether the user can bulk restore.
-     */
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Order $order): bool
     {
-        return $user->can('restore_any_order');
+        return $authUser->can('Replicate:Order');
     }
 
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, Order $order): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_order');
+        return $authUser->can('Reorder:Order');
     }
 
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_order');
-    }
 }

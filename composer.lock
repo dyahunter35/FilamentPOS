@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d464e5d9c480dc9f3b21d712a95f587",
+    "content-hash": "2d328ebaf952ff036df7b5a0f918b275",
     "packages": [
         {
             "name": "anourvalar/eloquent-serialize",
@@ -3855,83 +3855,6 @@
                 }
             ],
             "time": "2025-07-17T11:15:13+00:00"
-        },
-        {
-            "name": "marjose123/filament-lockscreen",
-            "version": "v3.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/MarJose123/filament-lockscreen.git",
-                "reference": "aadf9c983f5b339b11add7effc2b0e71193459ee"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/MarJose123/filament-lockscreen/zipball/aadf9c983f5b339b11add7effc2b0e71193459ee",
-                "reference": "aadf9c983f5b339b11add7effc2b0e71193459ee",
-                "shasum": ""
-            },
-            "require": {
-                "danharrin/livewire-rate-limiting": "^2.1.0",
-                "filament/filament": "^4.0",
-                "php": "^8.2",
-                "spatie/laravel-package-tools": "^1.13.0"
-            },
-            "require-dev": {
-                "driftingly/rector-laravel": "^2.0",
-                "laravel/pint": "^1.0",
-                "nunomaduro/collision": "^8.1",
-                "orchestra/testbench": "^9.0|^10.0",
-                "pestphp/pest": "^3.7",
-                "pestphp/pest-plugin-laravel": "^3.0",
-                "phpunit/phpunit": "^11.0|^12.0",
-                "rector/rector": "^2.1"
-            },
-            "type": "library",
-            "extra": {
-                "laravel": {
-                    "providers": [
-                        "lockscreen\\FilamentLockscreen\\FilamentLockscreenServiceProvider"
-                    ]
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "lockscreen\\FilamentLockscreen\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Marjose",
-                    "email": "hypernate1@gmail.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Give an ability to the user to lock their access session without logging out of the system for a break.",
-            "homepage": "https://github.com/marjose123/filament-lockscreen",
-            "keywords": [
-                "MarJose123",
-                "filament-lockscreen",
-                "laravel"
-            ],
-            "support": {
-                "issues": "https://github.com/MarJose123/filament-lockscreen/issues",
-                "source": "https://github.com/MarJose123/filament-lockscreen/tree/v3.1"
-            },
-            "funding": [
-                {
-                    "url": "https://paypal.me/whoami213",
-                    "type": "custom"
-                },
-                {
-                    "url": "https://github.com/MarJose123",
-                    "type": "github"
-                }
-            ],
-            "time": "2025-10-05T04:08:31+00:00"
         },
         {
             "name": "masterminds/html5",

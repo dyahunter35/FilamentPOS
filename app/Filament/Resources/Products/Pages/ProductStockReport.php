@@ -22,12 +22,12 @@ class ProductStockReport extends Page
     protected string $view = 'filament.resources.product-resource.pages.product-stock-report';
     // protected static string $view = 'filament.resources.product-resource.pages.product';
     // protected static string $view = 'welcome';
-        protected static ?int $navigationSort = 8;
+    protected static ?int $navigationSort = 8;
 
     // اسم الصفحة في قائمة التنقل
     protected static ?string $navigationLabel = 'تقرير مخزون المنتجات';
 
-    protected static bool $shouldRegisterNavigation = true;
+    // protected static bool $shouldRegisterNavigation = true;
 
     // --- NAVIGATION ---
     public function getTitle(): string | Htmlable

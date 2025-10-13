@@ -20,8 +20,8 @@ use Filament\Actions\DeleteBulkAction;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Filament\Resources\Products\Pages\CreateProduct;
 use App\Filament\Resources\Products\Pages\EditProduct;
-use App\Filament\Resources\Products\Pages\ProductStockReport;
-use App\Filament\Resources\Products\Pages\BranchReport;
+// use App\Filament\Resources\Products\Pages\ProductStockReport;
+// use App\Filament\Resources\Products\Pages\BranchReport;
 use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\Products\RelationManagers\HistoryRelationManager;
 use App\Models\Product;
@@ -254,7 +254,7 @@ class ProductResource extends Resource
                     ->label(__('product.columns.security_stock.label'))
                     ->searchable()
                     ->sortable()
-                   // ->visible(fn() => !auth()->user()->hasRole('بائع'))
+                    // ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->toggleable(),
 
                 TextColumn::make('stock_for_current_branch')
@@ -267,7 +267,7 @@ class ProductResource extends Resource
                     ->label(__('product.columns.all_branches_quantity.label'))
                     ->searchable()
                     ->sortable()
-                    ->color(fn($record)=> $record->total_stock > $record->security_stock? 'success':'danger')
+                    ->color(fn($record) => $record->total_stock > $record->security_stock ? 'success' : 'danger')
                     ->visible(fn() => !auth()->user()->hasRole('بائع'))
                     ->toggleable(),
 
@@ -334,8 +334,8 @@ class ProductResource extends Resource
             'index' => ListProducts::route('/'),
             'create' => CreateProduct::route('/create'),
             'edit' => EditProduct::route('/{record}/edit'),
-            'report' => ProductStockReport::route('/report'),
-            'branch' => BranchReport::route('/branch-report'),
+            // 'report' => ProductStockReport::route('/report'),
+            // 'branch' => BranchReport::route('/branch-report'),
         ];
     }
 }

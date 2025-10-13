@@ -1,108 +1,70 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Policies;
 
-use App\Models\User;
+use Illuminate\Foundation\Auth\User as AuthUser;
 use App\Models\Product;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ProductPolicy
 {
     use HandlesAuthorization;
-
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
+    
+    public function viewAny(AuthUser $authUser): bool
     {
-        return $user->can('view_any_product');
+        return $authUser->can('ViewAny:Product');
     }
 
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, Product $product): bool
+    public function view(AuthUser $authUser, Product $product): bool
     {
-        return $user->can('view_product');
+        return $authUser->can('View:Product');
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
+    public function create(AuthUser $authUser): bool
     {
-        return $user->can('create_product');
+        return $authUser->can('Create:Product');
     }
 
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function update(User $user, Product $product): bool
+    public function update(AuthUser $authUser, Product $product): bool
     {
-        return $user->can('update_product');
+        return $authUser->can('Update:Product');
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
-    public function delete(User $user, Product $product): bool
+    public function delete(AuthUser $authUser, Product $product): bool
     {
-        return $user->can('delete_product');
+        return $authUser->can('Delete:Product');
     }
 
-    /**
-     * Determine whether the user can bulk delete.
-     */
-    public function deleteAny(User $user): bool
+    public function restore(AuthUser $authUser, Product $product): bool
     {
-        return $user->can('delete_any_product');
+        return $authUser->can('Restore:Product');
     }
 
-    /**
-     * Determine whether the user can permanently delete.
-     */
-    public function forceDelete(User $user, Product $product): bool
+    public function forceDelete(AuthUser $authUser, Product $product): bool
     {
-        return $user->can('force_delete_product');
+        return $authUser->can('ForceDelete:Product');
     }
 
-    /**
-     * Determine whether the user can permanently bulk delete.
-     */
-    public function forceDeleteAny(User $user): bool
+    public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return $user->can('force_delete_any_product');
+        return $authUser->can('ForceDeleteAny:Product');
     }
 
-    /**
-     * Determine whether the user can restore.
-     */
-    public function restore(User $user, Product $product): bool
+    public function restoreAny(AuthUser $authUser): bool
     {
-        return $user->can('restore_product');
+        return $authUser->can('RestoreAny:Product');
     }
 
-    /**
-     * Determine whether the user can bulk restore.
-     */
-    public function restoreAny(User $user): bool
+    public function replicate(AuthUser $authUser, Product $product): bool
     {
-        return $user->can('restore_any_product');
+        return $authUser->can('Replicate:Product');
     }
 
-    /**
-     * Determine whether the user can replicate.
-     */
-    public function replicate(User $user, Product $product): bool
+    public function reorder(AuthUser $authUser): bool
     {
-        return $user->can('replicate_product');
+        return $authUser->can('Reorder:Product');
     }
 
-    /**
-     * Determine whether the user can reorder.
-     */
-    public function reorder(User $user): bool
-    {
-        return $user->can('reorder_product');
-    }
 }

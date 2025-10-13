@@ -22,7 +22,7 @@ class BranchReport extends Page
 
     protected static bool $isScopedToTenant = true;
 
-    protected static bool $shouldRegisterNavigation = true;
+    // protected static bool $shouldRegisterNavigation = true;
 
     protected static ?int $navigationSort = 7;
 
