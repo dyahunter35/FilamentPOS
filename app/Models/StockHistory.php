@@ -8,6 +8,7 @@ use App\Services\InventoryService;
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 
 class StockHistory extends Model
 {
@@ -30,16 +31,38 @@ class StockHistory extends Model
 
     protected static function booted(): void
     {
-        // This event fires AFTER a new StockHistory record is created.
-        static::created(function (StockHistory $history) {
-            $servies = new InventoryService;
+        // 🟢 When a stock history record is created
+        static::creating(function (StockHistory $history) {
+            $history->user_id = Auth::id();
+        });
 
-            $servies->updateAllBranches();
+        static::created(function (StockHistory $history) {
+            $services = new InventoryService;
+            $services->updateAllBranches();
 
             $product = $history->product;
 
-            if (($product->total_stock >= $product->security_stock) && $product->low_stock_notified_at)
+            if (($product->total_stock >= $product->security_stock) && $product->low_stock_notified_at) {
                 $product->update(['low_stock_notified_at' => null]);
+            }
+        });
+
+        // 🟡 When a stock history record is updated
+        static::updated(function (StockHistory $history) {
+            $services = new InventoryService;
+            $services->updateStockInBranch($history->product, $history->branch);
+
+            $product = $history->product;
+
+            if (($product->total_stock >= $product->security_stock) && $product->low_stock_notified_at) {
+                $product->update(['low_stock_notified_at' => null]);
+            }
+        });
+
+        // 🔴 When a stock history record is deleted
+        static::deleted(function (StockHistory $history) {
+            $services = new InventoryService;
+            $services->updateStockInBranch($history->product, $history->branch);
         });
     }
 

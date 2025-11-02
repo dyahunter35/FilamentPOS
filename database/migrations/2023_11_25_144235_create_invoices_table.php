@@ -14,8 +14,9 @@ return new class extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable('invoices')){
-            Schema::create('invoices', function (Blueprint $table) {
+        if (!Schema::hasTable('invoices')) {
+        }
+        /* Schema::create('invoices', function (Blueprint $table) {
                 $table->id();
 
                 $table->string('uuid')->unique();
@@ -72,7 +73,7 @@ return new class extends Migration
                 $table->timestamps();
                 $table->softDeletes();
             });
-        }
+        } */
     }
 
     /**

@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('invoices_items', function (Blueprint $table) {
+        /*  Schema::create('invoices_items', function (Blueprint $table) {
             $table->id();
 
             $table->string('type')->default('item')->nullable();
@@ -49,7 +49,7 @@ return new class extends Migration
             $table->json('options')->nullable();
 
             $table->timestamps();
-        });
+        }); */
     }
 
     /**

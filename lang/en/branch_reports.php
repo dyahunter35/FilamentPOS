@@ -2,19 +2,19 @@
 
 return [
     'navigation' => [
-        'group' => 'التقارير',
+        'group' => 'Reports',
     ],
     'breadcrumbs' => [
-        'index' => 'التقارير',
+        'index' => 'Reports',
     ],
     'single_branch' => [
-        'label' => 'تقرير مخزن :b',
-        'plural_label' => 'تقرير المخزن',
-        'model_label' => 'تقرير بضاعة الفروع'
+        'label' => 'Store Report :b',
+        'plural_label' => 'Store Report',
+        'model_label' => 'Branch Goods Report'
     ],
      'all_branch' => [
-        'label' => 'تقرير جمميع المخازن',
-        'plural_label' => 'تقرير المخازن',
-        'model_label' => 'تقرير البضاعة الكلي'
+        'label' => 'All Stores Report',
+        'plural_label' => 'Stores Report',
+        'model_label' => 'Total Goods Report'
     ],
 ];

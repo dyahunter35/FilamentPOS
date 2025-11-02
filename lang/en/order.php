@@ -147,7 +147,9 @@ return [
             'label' => 'Last modified at',
             'placeholder' => '',
         ],
-
+        'payment_date' => [
+            'label' => 'Payment Date',
+        ],
         'payment_method' => [
             'label' => 'Payment Method',
             'placeholder' => 'Select payment method',
@@ -157,8 +159,8 @@ return [
                 'refund' => 'Money Back',
             ],
         ],
-        'amount'=>[
-            'label'=>'Amount'
+        'amount' => [
+            'label' => 'Amount'
         ]
     ],
     'actions' => [
@@ -174,11 +176,11 @@ return [
                 'heading' => 'Create Order',
                 'submit' => 'Create',
             ],
-            'notifications'=>[
-                'at_least_one'=>'Order must have at least one item.',
-                'stock'=>[
-                    'title'=>'Stock Error',
-                    'message'=> 'The requested quantity for `:product` is not available.'
+            'notifications' => [
+                'at_least_one' => 'Order must have at least one item.',
+                'stock' => [
+                    'title' => 'Stock Error',
+                    'message' => 'The requested quantity for `:product` is not available.'
                 ]
             ]
         ],
@@ -213,11 +215,13 @@ return [
             ],
         ],
     ],
-    'invoice'=>[
+    'invoice' => [
 
-        'labels'=>[
-            'today'=> 'Today',
-            'subtotal'=> 'Before Discount'
+        'labels' => [
+            'today' => 'Today',
+            'subtotal' => 'Before Discount',
+            'payment' => 'Payment History'
+
         ]
     ]
 ];
