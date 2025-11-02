@@ -6,9 +6,9 @@ use App\Filament\Pages\Dashboard\MainDashboard;
 use App\Filament\Pages\Tenancy\EditBranch;
 use BezhanSalleh\FilamentShield\Middleware\SyncShieldTenant;
 use App\Filament\Pages\Tenancy\RegisterBranch;
-use App\Filament\Resources\OrderResource\Pages\SalesReport;
-use App\Filament\Resources\ProductResource\Pages\BranchReport;
-use App\Filament\Resources\ProductResource\Pages\ProductStockReport;
+use App\Filament\Resources\Orders\Pages\SalesReport;/*
+use App\Filament\Resources\Products\Pages\BranchReport;
+use App\Filament\Resources\Products\Pages\ProductStockReport; */
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use App\Models\Branch;
 use Filament\Facades\Filament;
@@ -38,9 +38,8 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
             ->id('admin')
-            ->path('/')
+            ->path('/admin')
             ->login()
             ->font('Poppins')
             ->databaseTransactions()
@@ -51,6 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => 'rgb(201,88,47)',
             ])
+            ->viteTheme('resources/css/filament/site/theme.css')
             //->brandLogo(fn  ()=>asset('asset/images/logo/gas 200.png'))
             ->favicon(asset('asset/images/favicon.ico'))
             ->renderHook(
@@ -71,44 +71,6 @@ class AdminPanelProvider extends PanelProvider
                         </script> -->
                     HTML
             )
-            /* ->colors([
-                'primary' => [
-                    'DEFAULT' => "#352F44", // اللون الافتراضي يظل هو نفسه لضمان التوافق
-                    50 => "#F7F6F8",
-                    100 => "#EEEDEE",
-                    200 => "#D5D2D9",
-                    300 => "#BBB6C3",
-                    400 => "#9E97A7",
-                    500 => "#352F44", // اللون الأساسي عند المستوى 500
-                    600 => "#2D2839",
-                    700 => "#26222F",
-                    800 => "#1E1B26",
-                    900 => "#16151C",
-                    950 => "#0F0E13",
-                ],
-                'secondary' => [
-                    'DEFAULT' => "#EFC52E",
-                    50 => "#FEFBF3",
-                    100 => "#FDF7E6",
-                    200 => "#FAECBF",
-                    300 => "#F7E197",
-                    400 => "#F3D550",
-                    500 => "#EFC52E", // اللون الثانوي عند المستوى 500
-                    600 => "#D4AD1A",
-                    700 => "#A68515",
-                    800 => "#785D10",
-                    900 => "#4B3A0A",
-                    950 => "#302506",
-                ],
-                "brand-primary" => "#EFC52E",
-                "brand-primary-gray" => "#B4B4B8",
-                "brand-secondary-dark" => "#352F44",
-                "brand-secondary-light" => "#817F8A",
-            ]) */
-            //->viteTheme('resources/css/filament/site/theme.css')
-            //->favicon(asset('images/favicon.ico'))
-            //->brandLogo(asset('asset/images/logo/gas 200.png'))
-            //->registration()
             ->tenant(Branch::class, slugAttribute: 'slug')
             ->tenantRegistration(RegisterBranch::class)
             ->tenantProfile(EditBranch::class)
@@ -118,10 +80,10 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
             ->pages([
-                MainDashboard::class,
+                // MainDashboard::class,
+                /*
                 BranchReport::class,
-                ProductStockReport::class
-            ])
+                ProductStockReport::class */])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 //Widgets\AccountWidget::class,
@@ -137,10 +99,20 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                LockerTimer::class,
+                //LockerTimer::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make()
+                    ->navigationGroup(fn() => __('user.navigation.group', [], app()->getLocale()))                  // string|Closure|null
+                    ->navigationSort(10)
+                    ->scopeToTenant(false)                       // bool|Closure
+                    ->tenantRelationshipName(null)    // string|Closure|null
+                    ->tenantOwnershipRelationshipName(null) // string|Closure|null
+                    // int|Closure|null
+                    // ->navigationBadge('5')                      // string|Closure|null
+                    //->navigationBadgeColor('success')           // string|array|Closure|null
+                    //->navigationParentItem('parent.item')       // string|Closure|null
+                    ->registerNavigation(true)
                     ->gridColumns([
                         'default' => 1,
                         'sm' => 2,
@@ -155,8 +127,7 @@ class AdminPanelProvider extends PanelProvider
                     ->resourceCheckboxListColumns([
                         'default' => 1,
                         'sm' => 2,
-                    ]),
-                new Lockscreen()  // <- Add this
+                    ])
 
             ])
             ->tenantMiddleware([
@@ -164,7 +135,6 @@ class AdminPanelProvider extends PanelProvider
             ], isPersistent: true)
             ->authMiddleware([
                 Authenticate::class,
-                Locker::class,
             ]);
     }
 }

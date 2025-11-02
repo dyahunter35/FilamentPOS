@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Spatie\Permission\PermissionRegistrar;
 use App\Models\Branch;
 use Illuminate\Support\ServiceProvider;
 use App\Models\Permission;
@@ -30,18 +31,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        app(\Spatie\Permission\PermissionRegistrar::class)
+        /* app(PermissionRegistrar::class)
             ->setPermissionClass(Permission::class)
             ->setRoleClass(Role::class);
-
-        FilamentInvoices::registerFor([
+ */
+        /*  FilamentInvoices::registerFor([
             InvoiceFor::make(User::class)
                 ->label('Account')
         ]);
         FilamentInvoices::registerFrom([
             InvoiceFrom::make(Branch::class)
                 ->label('Company')
-        ]);
+        ]); */
 
         setlocale(LC_NUMERIC, 'en_US.UTF-8');
 
@@ -55,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
             );
         });*/
 
-        LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
+        /* LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
             $switch
                 ->locales(['ar','en'])
                 ->outsidePanelRoutes([
@@ -65,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                 ])
 
             ; // also accepts a closure
-        });
+        }); */
         //
     }
 }

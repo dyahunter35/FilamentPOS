@@ -48,7 +48,7 @@ class Product extends Model implements HasMedia
     /**
      * Get the stock quantity for this product for the CURRENTLY active branch.
      *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     * @return Attribute
      */
     public function stockForCurrentBranch(): Attribute
     {
@@ -74,7 +74,7 @@ class Product extends Model implements HasMedia
     /**
      * Get the total stock quantity for this product across all branches.
      *
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute
+     * @return Attribute
      */
     public function totalStock(): Attribute
     {

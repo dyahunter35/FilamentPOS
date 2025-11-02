@@ -2,6 +2,10 @@
 
 namespace App\Filament\Pages\Dashboard;
 
+use App\Filament\Resources\Orders\Widgets\SalesStats;
+use App\Filament\Resources\Orders\Widgets\SalesChart;
+use App\Filament\Resources\Orders\Widgets\Chart;
+use App\Filament\Resources\Orders\Widgets\LatestOrders;
 use Filament\Pages\Dashboard as BaseDashboard;
 use App\Filament\Pages\Dashboard\Widgets\StatsWidget;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -14,7 +18,7 @@ class MainDashboard extends BaseDashboard
 {
     use HasPageShield;
 
-    protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-presentation-chart-line';
     //protected static ?string $navigationLabel = 'Dashboard';
     //protected static ?int $navigationSort = 0;
 
@@ -41,10 +45,10 @@ class MainDashboard extends BaseDashboard
         return [
             //StatsWidget::class,
 
-            Widgets\SalesStats::class,
-            Widgets\SalesChart::class,
-            Widgets\Chart::class,
-            Widgets\LatestOrders::class,
+            SalesStats::class,
+            SalesChart::class,
+            Chart::class,
+            LatestOrders::class,
         ];
     }
     protected function getFooterWidgets(): array

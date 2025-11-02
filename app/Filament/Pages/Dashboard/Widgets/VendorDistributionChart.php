@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class VendorDistributionChart extends ChartWidget
 {
-    protected static ?string $heading = 'Vendor Distribution by City';
+    protected ?string $heading = 'Vendor Distribution by City';
     protected static ?int $sort = 2;
 
     protected function getData(): array
